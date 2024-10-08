@@ -9,15 +9,16 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="admin-panel">
     <h1>Panel de Administración</h1>
-    
+
     <div class="panel-section">
         <h2>Gestión de Disponibilidad</h2>
         <div class="availability-manager">
             <div id="calendar"></div>
             <div class="time-selector">
-                <h3>Seleccionar Horarios Disponibles</h3>
+                <h3>Agregar Disponibilidad</h3>
                 <form id="availabilityForm">
                     <div class="form-group">
                         <label for="date">Fecha:</label>
@@ -36,23 +37,28 @@
             </div>
         </div>
     </div>
-    
+
     <div class="panel-section">
         <h2>Citas Agendadas</h2>
-        <div class="scheduled-appointments">
-            <ul id="appointmentsList">
-                {% for appointment in appointments %}
-                <li>
-                    <strong>{{ appointment.user.username }}</strong> - {{ appointment.availability.date }} {{ appointment.availability.start_time }}
-                    <button class="btn-secondary record-payment" data-id="{{ appointment.id }}" {% if appointment.is_paid %}disabled{% endif %}>
-                        {% if appointment.is_paid %}Pagado{% else %}Registrar Pago{% endif %}
-                    </button>
-                </li>
-                {% endfor %}
-            </ul>
-        </div>
+        <ul id="appointmentsList">
+            {% for appointment in appointments %}
+            <li>
+                <strong>{{ appointment.user.username }}</strong> - 
+                {{ appointment.availability.date|date:"d/m/Y" }} {{ appointment.availability.start_time|time:"H:i" }}
+                {% if appointment.is_paid %}
+                    <span class="paid">Pagado</span>
+                {% else %}
+                    <button class="record-payment" data-id="{{ appointment.id }}">Registrar Pago</button>
+                {% endif %}
+                <form class="google-meet-form" data-id="{{ appointment.id }}">
+                    <input type="url" name="google_meet_link" placeholder="Enlace de Google Meet" value="{{ appointment.google_meet_link|default_if_none:'' }}">
+                    <button type="submit">Actualizar enlace</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
     </div>
-    
+
     <div class="panel-section">
         <h2>Resumen de Ingresos</h2>
         <div class="earnings-summary">
@@ -61,9 +67,11 @@
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
 <script src="{% static 'js/panel.js' %}"></script>
 {% endblock %}

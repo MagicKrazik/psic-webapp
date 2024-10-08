@@ -9,11 +9,12 @@ h1 {
     color: var(--primary-color);
     text-align: center;
     margin-bottom: 2rem;
+    font-size: 2rem;
 }
 
 .appointment-grid {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     gap: 2rem;
 }
 
@@ -26,12 +27,13 @@ h1 {
 
 #calendar {
     height: 100%;
-    min-height: 400px;
+    min-height: 300px;
 }
 
 .booking-form-container h2 {
     color: var(--secondary-color);
     margin-bottom: 1.5rem;
+    font-size: 1.5rem;
 }
 
 .form-group {
@@ -46,7 +48,7 @@ label {
 
 input, select {
     width: 100%;
-    padding: 0.5rem;
+    padding: 0.75rem;
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
@@ -61,40 +63,70 @@ input, select {
     font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
+    width: 100%;
 }
 
 .submit-button:hover {
     background-color: var(--secondary-color);
 }
 
-@media screen and (max-width: 768px) {
+@media screen and (min-width: 768px) {
     .appointment-grid {
-        grid-template-columns: 1fr;
-    }
-
-    .calendar-container {
-        order: 1;
-    }
-
-    .booking-form-container {
-        order: 2;
-    }
-}
-
-@media screen and (max-width: 480px) {
-    .appointment-container {
-        padding: 1rem;
+        grid-template-columns: 1fr 1fr;
     }
 
     h1 {
-        font-size: 1.5rem;
+        font-size: 2.5rem;
     }
 
-    .calendar-container, .booking-form-container {
-        padding: 1rem;
+    .booking-form-container h2 {
+        font-size: 2rem;
     }
 
     #calendar {
-        min-height: 300px;
+        min-height: 400px;
     }
+
+    .submit-button {
+        width: auto;
+    }
+}
+
+@media screen and (min-width: 1024px) {
+    .appointment-container {
+        padding: 2rem;
+    }
+}
+
+/* ... (existing styles) ... */
+
+.user-appointments {
+    margin-top: 2rem;
+}
+
+.user-appointments h2 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
+}
+
+.user-appointments ul {
+    list-style-type: none;
+    padding: 0;
+}
+
+.user-appointments li {
+    margin-bottom: 0.5rem;
+}
+
+#appointment-details {
+    margin-top: 2rem;
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 1rem;
+}
+
+#appointment-details h3 {
+    color: var(--secondary-color);
+    margin-bottom: 1rem;
 }

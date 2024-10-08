@@ -2,6 +2,7 @@ document.addEventListener('DOMContentLoaded', function() {
     // Initialize Flatpickr for date and time inputs
     flatpickr("#date", {
         dateFormat: "Y-m-d",
+        minDate: "today",
     });
 
     flatpickr("#startTime, #endTime", {
@@ -10,6 +11,19 @@ document.addEventListener('DOMContentLoaded', function() {
         dateFormat: "H:i",
         time_24hr: true,
     });
+
+    // Initialize FullCalendar
+    var calendarEl = document.getElementById('calendar');
+    var calendar = new FullCalendar.Calendar(calendarEl, {
+        initialView: 'dayGridMonth',
+        events: fetchAvailabilities,
+        eventClick: function(info) {
+            if (confirm('¿Desea eliminar esta disponibilidad?')) {
+                deleteAvailability(info.event.id);
+            }
+        }
+    });
+    calendar.render();
 
     // Handle form submission for adding availability
     const availabilityForm = document.getElementById('availabilityForm');
@@ -32,9 +46,47 @@ document.addEventListener('DOMContentLoaded', function() {
             if (data.status === 'success') {
                 alert('Disponibilidad agregada con éxito');
                 availabilityForm.reset();
+                calendar.refetchEvents();
             }
         });
     });
+
+    // Function to fetch availabilities
+    function fetchAvailabilities(fetchInfo, successCallback, failureCallback) {
+        fetch('/get-availabilities/')
+            .then(response => response.json())
+            .then(data => {
+                const events = data.map(availability => ({
+                    id: availability.id,
+                    title: 'Disponible',
+                    start: `${availability.date}T${availability.start_time}`,
+                    end: `${availability.date}T${availability.end_time}`,
+                    color: 'green'
+                }));
+                successCallback(events);
+            })
+            .catch(error => {
+                failureCallback(error);
+            });
+    }
+
+    // Function to delete availability
+    function deleteAvailability(availabilityId) {
+        fetch(`/delete-availability/${availabilityId}/`, {
+            method: 'POST',
+            headers: {
+                'X-CSRFToken': getCookie('csrftoken')
+            }
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                calendar.refetchEvents();
+            } else {
+                alert(data.message);
+            }
+        });
+    }
 
     // Handle recording payments
     const appointmentsList = document.getElementById('appointmentsList');
@@ -53,6 +105,31 @@ document.addEventListener('DOMContentLoaded', function() {
                     e.target.textContent = 'Pagado';
                     e.target.disabled = true;
                     updateTotalEarnings();
+                }
+            });
+        }
+    });
+
+    // Handle updating Google Meet links
+    appointmentsList.addEventListener('submit', function(e) {
+        if (e.target.classList.contains('google-meet-form')) {
+            e.preventDefault();
+            const form = e.target;
+            const appointmentId = form.dataset.id;
+            const googleMeetLink = form.elements.google_meet_link.value;
+
+            fetch(`/update-google-meet-link/${appointmentId}/`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                    'X-CSRFToken': getCookie('csrftoken')
+                },
+                body: `google_meet_link=${encodeURIComponent(googleMeetLink)}`
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Enlace de Google Meet actualizado con éxito');
                 }
             });
         }

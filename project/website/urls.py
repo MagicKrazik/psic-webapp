@@ -14,11 +14,13 @@ urlpatterns = [
     path('about-me/', views.about_me, name='about_me'),
     path('services/', views.services, name='services'),
     path('contact/', views.contact, name='contact'),
+    path('record-payment/<int:appointment_id>/', views.record_payment, name='record_payment'),
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     path('add-availability/', views.add_availability, name='add_availability'),
-    path('record-payment/<int:appointment_id>/', views.record_payment, name='record_payment'),
+    path('delete-availability/<int:availability_id>/', views.delete_availability, name='delete_availability'),
     path('appointment/', views.appointment, name='appointment'),
     path('book-appointment/', views.book_appointment, name='book_appointment'),
     path('get-availabilities/', views.get_availabilities, name='get_availabilities'),
+    path('update-google-meet-link/<int:appointment_id>/', views.update_google_meet_link, name='update_google_meet_link'),
 
 ]    

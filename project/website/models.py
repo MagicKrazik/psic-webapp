@@ -20,10 +20,11 @@ class Availability(models.Model):
         return f"{self.date} {self.start_time}-{self.end_time}"
 
 class Appointment(models.Model):
-    user = models.ForeignKey('CustomUser', on_delete=models.CASCADE)
+    user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
     availability = models.OneToOneField(Availability, on_delete=models.CASCADE)
     created_at = models.DateTimeField(auto_now_add=True)
     is_paid = models.BooleanField(default=False)
+    google_meet_link = models.URLField(blank=True, null=True)
 
     def __str__(self):
         return f"Appointment for {self.user.username} on {self.availability}"
