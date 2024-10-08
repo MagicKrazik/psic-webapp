@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Sobre Mí - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/aboutme.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="aboutme-container">
+    <header class="profile-header">
+        <img src="{% static 'images/Image_psic.jpg' %}" alt="Psic. Susana Dávila Martínez" class="profile-image">
+        <h1>Psic. Susana Dávila Martínez</h1>
+    </header>
+
+    <section class="about-me">
+        <h2>Sobre Mí</h2>
+        <p>Soy una psicóloga apasionada por ayudar a niños, adolescentes y adultos a alcanzar su máximo potencial. Con experiencia en intervenciones basadas en análisis funcionales y terapias conductuales, me especializo en crear un espacio seguro y empático para mis pacientes.</p>
+        <p>Mi enfoque se centra en colaborar estrechamente con familias y pacientes, desarrollando planes de tratamiento personalizados que se adaptan a las necesidades únicas de cada individuo.</p>
+    </section>
+
+    <section class="education">
+        <h2>Educación y Formación</h2>
+        <ul>
+            <li>Diplomado en Intervenciones basadas en análisis funcionales</li>
+            <li>Diplomado en Habilidades Gerenciales </li>
+            <li>Licenciatura en Psicología | Ced. profesional: 13420346 </li>
+        </ul>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/aboutme.js' %}"></script>
+{% endblock %}

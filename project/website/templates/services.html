@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Servicios - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/services.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="services-container">
+    <h1>Servicios</h1>
+    <p class="services-intro">¿Te sientes abrumado por el estrés, la ansiedad o depresión? En mi consulta, encontrarás el apoyo y las herramientas que necesitas para superar estos desafíos y construir una vida más plena. ¡Contáctame hoy mismo y empecemos juntos a trabajar en tu bienestar!</p>
+
+    <div class="services-grid">
+        <div class="service-card" id="individual-therapy">
+            <i class="fas fa-user"></i>
+            <h2>Terapia Individual</h2>
+            <p>Sesiones personalizadas para abordar sus necesidades específicas y trabajar en su crecimiento personal.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+
+        <div class="service-card" id="couple-therapy">
+            <i class="fas fa-heart"></i>
+            <h2>Terapia de Pareja</h2>
+            <p>Apoyo para fortalecer la comunicación y resolver conflictos en su relación.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+
+        <div class="service-card" id="family-therapy">
+            <i class="fas fa-users"></i>
+            <h2>Terapia Familiar</h2>
+            <p>Se trabaja con toda la familia para mejorar la dinámica y resolver problemas en conjunto.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+
+        <div class="service-card" id="child-therapy">
+            <i class="fas fa-child"></i>
+            <h2>Terapia Infantil</h2>
+            <p>Atención especializada para niños, ayudándoles a expresar sus emociones y desarrollar habilidades sociales.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+
+        <div class="service-card" id="adolescent-therapy">
+            <i class="fas fa-graduation-cap"></i>
+            <h2>Terapia para Adolescentes</h2>
+            <p>Apoyo para jóvenes que enfrentan los desafíos únicos de la adolescencia.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+
+        <div class="service-card" id="stress-management">
+            <i class="fas fa-balance-scale"></i>
+            <h2>Manejo del Estrés</h2>
+            <p>Aprenderá técnicas efectivas para manejar el estrés y la ansiedad en su vida diaria.</p>
+            <button class="learn-more">Más información</button>
+        </div>
+    </div>
+
+    <div id="service-modal" class="modal">
+        <div class="modal-content">
+            <span class="close">&times;</span>
+            <h2 id="modal-title"></h2>
+            <p id="modal-description"></p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/services.js' %}"></script>
+{% endblock %}

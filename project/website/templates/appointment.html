@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Agendar Cita - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/appointment.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="appointment-container">
+    <h1>Agendar Cita</h1>
+    
+    <div class="appointment-grid">
+        <div class="calendar-container">
+            <div id="calendar"></div>
+        </div>
+        
+        <div class="booking-form-container">
+            <h2>Detalles de la Cita</h2>
+            <form id="booking-form">
+                <div class="form-group">
+                    <label for="availability">Horario Disponible:</label>
+                    <select id="availability" name="availability" required>
+                        <option value="">Seleccione un horario</option>
+                        {% for availability in availabilities %}
+                        <option value="{{ availability.id }}">{{ availability.date|date:"d/m/Y" }} {{ availability.start_time|time:"H:i" }} - {{ availability.end_time|time:"H:i" }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                <button type="submit" class="btn-primary">Reservar Cita</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/appointment.js' %}"></script>
+{% endblock %}

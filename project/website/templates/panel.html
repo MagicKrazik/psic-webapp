@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Panel de Administración - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/panel.css' %}">
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<div class="admin-panel">
+    <h1>Panel de Administración</h1>
+    
+    <div class="panel-section">
+        <h2>Gestión de Disponibilidad</h2>
+        <div class="availability-manager">
+            <div id="calendar"></div>
+            <div class="time-selector">
+                <h3>Seleccionar Horarios Disponibles</h3>
+                <form id="availabilityForm">
+                    <div class="form-group">
+                        <label for="date">Fecha:</label>
+                        <input type="text" id="date" name="date" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="startTime">Hora de inicio:</label>
+                        <input type="text" id="startTime" name="startTime" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endTime">Hora de fin:</label>
+                        <input type="text" id="endTime" name="endTime" required>
+                    </div>
+                    <button type="submit" class="btn-primary">Agregar Disponibilidad</button>
+                </form>
+            </div>
+        </div>
+    </div>
+    
+    <div class="panel-section">
+        <h2>Citas Agendadas</h2>
+        <div class="scheduled-appointments">
+            <ul id="appointmentsList">
+                {% for appointment in appointments %}
+                <li>
+                    <strong>{{ appointment.user.username }}</strong> - {{ appointment.availability.date }} {{ appointment.availability.start_time }}
+                    <button class="btn-secondary record-payment" data-id="{{ appointment.id }}" {% if appointment.is_paid %}disabled{% endif %}>
+                        {% if appointment.is_paid %}Pagado{% else %}Registrar Pago{% endif %}
+                    </button>
+                </li>
+                {% endfor %}
+            </ul>
+        </div>
+    </div>
+    
+    <div class="panel-section">
+        <h2>Resumen de Ingresos</h2>
+        <div class="earnings-summary">
+            <p>Total de ingresos: $<span id="totalEarnings">0</span></p>
+            <button id="generateReport" class="btn-secondary">Generar Reporte</button>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script src="{% static 'js/panel.js' %}"></script>
+{% endblock %}

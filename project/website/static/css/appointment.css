@@ -1,0 +1,100 @@
+.appointment-container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0rem;
+    padding-bottom: 1rem;
+}
+
+h1 {
+    color: var(--primary-color);
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+.appointment-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2rem;
+}
+
+.calendar-container, .booking-form-container {
+    background-color: var(--section-bg-color);
+    border-radius: 10px;
+    padding: 1.5rem;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#calendar {
+    height: 100%;
+    min-height: 400px;
+}
+
+.booking-form-container h2 {
+    color: var(--secondary-color);
+    margin-bottom: 1.5rem;
+}
+
+.form-group {
+    margin-bottom: 1.5rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+input, select {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.submit-button {
+    background-color: var(--primary-color);
+    color: white;
+    border: none;
+    padding: 0.75rem 1.5rem;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.submit-button:hover {
+    background-color: var(--secondary-color);
+}
+
+@media screen and (max-width: 768px) {
+    .appointment-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .calendar-container {
+        order: 1;
+    }
+
+    .booking-form-container {
+        order: 2;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .appointment-container {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 1.5rem;
+    }
+
+    .calendar-container, .booking-form-container {
+        padding: 1rem;
+    }
+
+    #calendar {
+        min-height: 300px;
+    }
+}

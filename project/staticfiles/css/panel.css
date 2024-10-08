@@ -1,0 +1,166 @@
+/* panel.css */
+.admin-panel {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0rem;
+}
+
+h1, h2, h3 {
+    color: var(--primary-color);
+}
+
+h1 {
+    font-size: 2.5rem;
+    text-align: center;
+    margin-bottom: 2rem;
+}
+
+h2 {
+    font-size: 2rem;
+    margin-bottom: 1.5rem;
+}
+
+h3 {
+    font-size: 1.5rem;
+    margin-bottom: 1rem;
+}
+
+.panel-section {
+    background-color: var(--section-bg-color);
+    border-radius: 10px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    padding: 2rem;
+    margin-bottom: 2rem;
+}
+
+.availability-manager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+#calendar {
+    flex: 1;
+    min-width: 300px;
+}
+
+.time-selector {
+    flex: 1;
+    min-width: 300px;
+}
+
+.form-group {
+    margin-bottom: 1rem;
+}
+
+label {
+    display: block;
+    margin-bottom: 0.5rem;
+    color: var(--text-color);
+}
+
+input[type="text"] {
+    width: 100%;
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+}
+
+.btn-primary, .btn-secondary {
+    display: inline-block;
+    padding: 0.8rem 1.5rem;
+    border: none;
+    border-radius: 5px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-primary {
+    background-color: var(--primary-color);
+    color: white;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+}
+
+.btn-primary:hover, .btn-secondary:hover {
+    opacity: 0.9;
+}
+
+.earnings-manager {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 2rem;
+}
+
+.scheduled-sessions, .earnings-summary {
+    flex: 1;
+    min-width: 300px;
+}
+
+#sessionsList {
+    list-style-type: none;
+    padding: 0;
+}
+
+#sessionsList li {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 1rem;
+    margin-bottom: 1rem;
+}
+
+#totalEarnings {
+    font-weight: bold;
+    color: var(--primary-color);
+}
+
+/* Responsive design */
+@media screen and (max-width: 768px) {
+    .admin-panel {
+        padding: 1rem;
+    }
+
+    h1 {
+        font-size: 2rem;
+    }
+
+    h2 {
+        font-size: 1.75rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .panel-section {
+        padding: 1.5rem;
+    }
+
+    .availability-manager, .earnings-manager {
+        flex-direction: column;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    h1 {
+        font-size: 1.75rem;
+    }
+
+    h2 {
+        font-size: 1.5rem;
+    }
+
+    h3 {
+        font-size: 1.25rem;
+    }
+
+    .panel-section {
+        padding: 1rem;
+    }
+}

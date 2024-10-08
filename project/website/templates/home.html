@@ -1,0 +1,101 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Inicio - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/home.css' %}">
+<link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block content %}
+<div class="home-container">
+    <section id="inicio" class="section">
+        <h1>Bienvenido a la consulta de la Psic. Susana Dávila</h1>
+        <p>¿Te sientes abrumado? La terapia puede ayudarte a encontrar claridad y bienestar en tu vida.</p>
+        <p>¿Te sientes atrapado en patrones repetitivos? Con terapia podrás identificar y modificar conductas que te limitan.</p>
+        <p>¡No sigas postergando tu bienestar! Agenda una primera sesión y comienza a sentirte mejor hoy mismo.</p>
+        <div class="cta-buttons">
+            <a href="{% url 'login' %}" class="cta-button">Agendar consulta</a>
+            <a href="#servicios" class="cta-button secondary">Conocer servicios</a>
+        </div>
+    </section>
+
+    <section id="sobre-la-psicologa" class="section">
+        <h2>Sobre mi</h2>
+        <div class="psychologist-info">
+            <img src="{% static 'images/Image_psic.jpg' %}" alt="Psic. Susana Dávila Martínez" class="psychologist-photo">
+            <blockquote>
+                "Como psicóloga, mi pasión es ayudar a las personas a alcanzar su máximo potencial. Creo en un enfoque terapéutico cálido y empático, donde te sientas escuchado y comprendido. Mi objetivo es acompañarte en tu proceso de crecimiento personal y ayudarte a desarrollar las herramientas necesarias para enfrentar los desafíos de la vida."
+            </blockquote>
+        </div>
+    </section>
+
+    <section id="servicios" class="section">
+        <h2>Servicios</h2>
+        <div class="services-grid">
+            <div class="service-card">
+                <h3>Terapia individual</h3>
+                <p>Sesiones personalizadas para abordar sus necesidades específicas y trabajar en su crecimiento personal.</p>
+            </div>
+            <div class="service-card">
+                <h3>Terapia de pareja</h3>
+                <p>Apoyo para fortalecer la comunicación y resolver conflictos en su relación.</p>
+            </div>
+            <div class="service-card">
+                <h3>Terapia familiar</h3>
+                <p>Se trabaja con toda la familia para mejorar la dinámica y resolver problemas en conjunto.</p>
+            </div>
+            <div class="service-card">
+                <h3>Terapia Infantil</h3>
+                <p>Atención especializada para niños, ayudándoles a expresar sus emociones y desarrollar habilidades sociales.</p>
+            </div>
+            <div class="service-card">
+                <h3>Terapia para Adolescentes</h3>
+                <p>Apoyo para jóvenes que enfrentan los desafíos únicos de la adolescencia.</p>
+            </div>
+            <div class="service-card">
+                <h3>Manejo del estrés</h3>
+                <p>Aprenderá técnicas efectivas para manejar el estrés y la ansiedad en su vida diaria.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="testimonios" class="section">
+        <h2>Testimonios</h2>
+        <div class="testimonial-slider">
+            <div class="testimonial">
+                <p>"Las sesiones con la Psic. Susana han sido transformadoras. Me siento más seguro y capaz de enfrentar mis desafíos."</p>
+                <p class="testimonial-author">- Carlos R.</p>
+            </div>
+            <div class="testimonial">
+                <p>"Gracias a la terapia, he mejorado significativamente mi relación de pareja. Estoy muy agradecida."</p>
+                <p class="testimonial-author">- María L.</p>
+            </div>
+            <div class="testimonial">
+                <p>"El enfoque empático de la Psic. Susana me ha ayudado a superar momentos difíciles. Altamente recomendada."</p>
+                <p class="testimonial-author">- Juan P.</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="agendar-cita" class="section">
+        <h2>Agendar cita</h2>
+        <p>Estás a un paso de comenzar tu viaje hacia el bienestar emocional. Agenda tu cita hoy y da el primer paso hacia una vida más plena.</p>
+        <p><strong>Precio por sesión de 1hr: $400 MXN</strong></p>
+        <a href="{% url 'login' %}" class="cta-button">Agendar ahora</a>
+    </section>
+
+    <section id="contacto" class="section-contact">
+        <h2>Redes Sociales</h2>
+        <ul class="social-links">
+            <li><a href="#" target="_blank">Instagram</a></li>
+            <li><a href="#" target="_blank">Facebook</a></li>
+        </ul>
+    </section>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/home.js' %}"></script>
+{% endblock %}
