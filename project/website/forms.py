@@ -6,7 +6,11 @@ from django.core.validators import MinValueValidator
 
 class CustomUserCreationForm(UserCreationForm):
     email = forms.EmailField(required=True, label="Correo electrónico")
-    age = forms.IntegerField(validators=[MinValueValidator(1)], label="Edad")
+    age = forms.IntegerField(
+        validators=[MinValueValidator(1)],
+        label="Edad",
+        widget=forms.TextInput(attrs={'type': 'number', 'step': '1', 'min': '1'})
+    )
     
     class Meta:
         model = CustomUser
@@ -24,6 +28,12 @@ class CustomUserCreationForm(UserCreationForm):
         self.fields['password2'].label = 'Confirmar contraseña'
         self.fields['password1'].help_text = 'Tu contraseña debe tener al menos 8 caracteres y no puede ser demasiado común.'
         self.fields['password2'].help_text = 'Ingresa la misma contraseña que antes, para verificación.'
+
+    def clean_age(self):
+        age = self.cleaned_data.get('age')
+        if age is not None and age <= 0:
+            raise forms.ValidationError("La edad debe ser un número positivo.")
+        return age
 
     def save(self, commit=True):
         user = super().save(commit=False)

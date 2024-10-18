@@ -2,7 +2,7 @@
 .admin-panel {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0rem;
+    padding: 1rem;
 }
 
 h1, h2, h3 {
@@ -10,40 +10,36 @@ h1, h2, h3 {
 }
 
 h1 {
-    font-size: 2rem;
+    font-size: 1.8rem;
     text-align: center;
-    margin-bottom: 2rem;
-}
-
-h2 {
-    font-size: 1.75rem;
     margin-bottom: 1.5rem;
 }
 
-h3 {
+h2 {
     font-size: 1.5rem;
     margin-bottom: 1rem;
+}
+
+h3 {
+    font-size: 1.2rem;
+    margin-bottom: 0.8rem;
 }
 
 .panel-section {
     background-color: var(--section-bg-color);
     border-radius: 10px;
     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    padding: 1.5rem;
-    margin-bottom: 2rem;
+    padding: 1rem;
+    margin-bottom: 1.5rem;
 }
 
 .availability-manager {
     display: flex;
     flex-direction: column;
-    gap: 2rem;
+    gap: 1.5rem;
 }
 
-#calendar {
-    min-height: 300px;
-}
-
-.time-selector {
+.time-selector, .recurring-availability, .availability-list {
     width: 100%;
 }
 
@@ -57,21 +53,36 @@ label {
     color: var(--text-color);
 }
 
-input[type="text"] {
+input[type="text"], input[type="url"] {
     width: 100%;
-    padding: 0.75rem;
+    padding: 0.5rem;
     border: 1px solid #ccc;
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 0.9rem;
+}
+
+.checkbox-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+.checkbox-group label {
+    display: flex;
+    align-items: center;
+    margin-right: 1rem;
+}
+
+.checkbox-group input[type="checkbox"] {
+    margin-right: 0.3rem;
 }
 
 .btn-primary, .btn-secondary {
     display: inline-block;
-    width: 100%;
-    padding: 0.8rem 1.5rem;
+    padding: 0.6rem 1rem;
     border: none;
     border-radius: 5px;
-    font-size: 1rem;
+    font-size: 0.9rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
     text-align: center;
@@ -91,32 +102,38 @@ input[type="text"] {
     opacity: 0.9;
 }
 
-.earnings-manager {
-    display: flex;
-    flex-direction: column;
-    gap: 2rem;
-}
-
-.scheduled-sessions, .earnings-summary {
-    width: 100%;
-}
-
-#sessionsList {
+#availabilityList, #appointmentsList {
     list-style-type: none;
     padding: 0;
 }
 
-#sessionsList li {
+#availabilityList li, #appointmentsList li {
     background-color: #f8f9fa;
     border: 1px solid #e9ecef;
     border-radius: 4px;
-    padding: 1rem;
-    margin-bottom: 1rem;
+    padding: 0.8rem;
+    margin-bottom: 0.8rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }
 
-#totalEarnings {
+.paid {
+    color: green;
     font-weight: bold;
-    color: var(--primary-color);
+}
+
+.google-meet-form {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    margin-top: 0.5rem;
+}
+
+.info-text {
+    font-size: 0.8rem;
+    color: #666;
+    margin-bottom: 0.5rem;
 }
 
 @media screen and (min-width: 768px) {
@@ -124,69 +141,19 @@ input[type="text"] {
         padding: 2rem;
     }
 
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    h2 {
-        font-size: 2rem;
-    }
-
-    h3 {
-        font-size: 1.75rem;
-    }
-
-    .panel-section {
-        padding: 2rem;
-    }
-
     .availability-manager {
         flex-direction: row;
     }
 
-    #calendar {
+    .time-selector, .recurring-availability {
         flex: 1;
-        min-width: 300px;
     }
 
-    .time-selector {
-        flex: 1;
-        min-width: 300px;
-    }
-
-    .btn-primary, .btn-secondary {
-        width: auto;
-    }
-
-    .earnings-manager {
+    .google-meet-form {
         flex-direction: row;
     }
 
-    .scheduled-sessions, .earnings-summary {
-        flex: 1;
-        min-width: 300px;
+    .google-meet-form input[type="url"] {
+        flex-grow: 1;
     }
-}
-
-@media screen and (min-width: 1024px) {
-    .admin-panel {
-        padding: 2rem;
-    }
-}
-
-/* ... (existing styles) ... */
-
-.google-meet-form {
-    display: flex;
-    align-items: center;
-    margin-top: 0.5rem;
-}
-
-.google-meet-form input[type="url"] {
-    flex-grow: 1;
-    margin-right: 0.5rem;
-}
-
-.google-meet-form button {
-    white-space: nowrap;
 }

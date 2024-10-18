@@ -9,9 +9,14 @@ document.addEventListener('DOMContentLoaded', function() {
             if (field.value.trim() === '') {
                 isValid = false;
                 showError(field, 'Este campo es requerido');
-            } else if (field.name === 'age' && parseInt(field.value) <= 0) {
-                isValid = false;
-                showError(field, 'La edad debe ser un número positivo');
+            } else if (field.name === 'age') {
+                const age = parseInt(field.value);
+                if (isNaN(age) || age <= 0) {
+                    isValid = false;
+                    showError(field, 'La edad debe ser un número positivo');
+                } else {
+                    clearError(field);
+                }
             } else {
                 clearError(field);
             }

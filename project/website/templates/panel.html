@@ -9,16 +9,14 @@
 {% endblock %}
 
 {% block content %}
-
 <div class="admin-panel">
     <h1>Panel de Administración</h1>
 
     <div class="panel-section">
         <h2>Gestión de Disponibilidad</h2>
         <div class="availability-manager">
-            <div id="calendar"></div>
             <div class="time-selector">
-                <h3>Agregar Disponibilidad</h3>
+                <h3>Agregar Disponibilidad Individual</h3>
                 <form id="availabilityForm">
                     <div class="form-group">
                         <label for="date">Fecha:</label>
@@ -28,13 +26,47 @@
                         <label for="startTime">Hora de inicio:</label>
                         <input type="text" id="startTime" name="startTime" required>
                     </div>
-                    <div class="form-group">
-                        <label for="endTime">Hora de fin:</label>
-                        <input type="text" id="endTime" name="endTime" required>
-                    </div>
+                    <p class="info-text">Todas las consultas tienen una duración de 1 hora.</p>
                     <button type="submit" class="btn-primary">Agregar Disponibilidad</button>
                 </form>
             </div>
+            
+            <div class="recurring-availability">
+                <h3>Agregar Disponibilidad Recurrente</h3>
+                <form id="recurringAvailabilityForm">
+                    <div class="form-group">
+                        <label for="startDate">Fecha de inicio:</label>
+                        <input type="text" id="startDate" name="startDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="endDate">Fecha de fin:</label>
+                        <input type="text" id="endDate" name="endDate" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Días de la semana:</label>
+                        <div class="checkbox-group">
+                            <label><input type="checkbox" name="days" value="0"> Lunes</label>
+                            <label><input type="checkbox" name="days" value="1"> Martes</label>
+                            <label><input type="checkbox" name="days" value="2"> Miércoles</label>
+                            <label><input type="checkbox" name="days" value="3"> Jueves</label>
+                            <label><input type="checkbox" name="days" value="4"> Viernes</label>
+                            <label><input type="checkbox" name="days" value="5"> Sábado</label>
+                            <label><input type="checkbox" name="days" value="6"> Domingo</label>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="recurringStartTime">Hora de inicio:</label>
+                        <input type="text" id="recurringStartTime" name="startTime" required>
+                    </div>
+                    <p class="info-text">Todas las consultas tienen una duración de 1 hora.</p>
+                    <button type="submit" class="btn-primary">Agregar Disponibilidad Recurrente</button>
+                </form>
+            </div>
+        </div>
+        
+        <div class="availability-list">
+            <h3>Horarios Disponibles</h3>
+            <ul id="availabilityList"></ul>
         </div>
     </div>
 
@@ -44,15 +76,16 @@
             {% for appointment in appointments %}
             <li>
                 <strong>{{ appointment.user.username }}</strong> - 
-                {{ appointment.availability.date|date:"d/m/Y" }} {{ appointment.availability.start_time|time:"H:i" }}
+                {{ appointment.availability.date|date:"d/m/Y" }} 
+                {{ appointment.availability.start_time|time:"H:i" }}
                 {% if appointment.is_paid %}
                     <span class="paid">Pagado</span>
                 {% else %}
-                    <button class="record-payment" data-id="{{ appointment.id }}">Registrar Pago</button>
+                    <button class="btn-secondary record-payment" data-id="{{ appointment.id }}">Registrar Pago</button>
                 {% endif %}
                 <form class="google-meet-form" data-id="{{ appointment.id }}">
                     <input type="url" name="google_meet_link" placeholder="Enlace de Google Meet" value="{{ appointment.google_meet_link|default_if_none:'' }}">
-                    <button type="submit">Actualizar enlace</button>
+                    <button type="submit" class="btn-secondary">Actualizar enlace</button>
                 </form>
             </li>
             {% endfor %}
@@ -63,15 +96,13 @@
         <h2>Resumen de Ingresos</h2>
         <div class="earnings-summary">
             <p>Total de ingresos: $<span id="totalEarnings">0</span></p>
-            <button id="generateReport" class="btn-secondary">Generar Reporte</button>
+            <button id="generateReport" class="btn-primary">Generar Reporte</button>
         </div>
     </div>
 </div>
-
 {% endblock %}
 
 {% block extra_js %}
 <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
-<script src="https://cdn.jsdelivr.net/npm/fullcalendar@5.10.2/main.min.js"></script>
 <script src="{% static 'js/panel.js' %}"></script>
 {% endblock %}

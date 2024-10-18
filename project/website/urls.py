@@ -17,10 +17,12 @@ urlpatterns = [
     path('record-payment/<int:appointment_id>/', views.record_payment, name='record_payment'),
     path('admin-panel/', views.admin_panel, name='admin_panel'),
     path('add-availability/', views.add_availability, name='add_availability'),
+    path('edit-availability/<int:availability_id>/', views.edit_availability, name='edit_availability'),
     path('delete-availability/<int:availability_id>/', views.delete_availability, name='delete_availability'),
+    path('add-recurring-availability/', views.add_recurring_availability, name='add_recurring_availability'),
+    path('get-availabilities/', views.get_availabilities, name='get_availabilities'),
     path('appointment/', views.appointment, name='appointment'),
     path('book-appointment/', views.book_appointment, name='book_appointment'),
-    path('get-availabilities/', views.get_availabilities, name='get_availabilities'),
     path('update-google-meet-link/<int:appointment_id>/', views.update_google_meet_link, name='update_google_meet_link'),
 
 ]    

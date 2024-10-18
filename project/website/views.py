@@ -11,15 +11,15 @@ from .models import Availability, Appointment
 from django.views.decorators.http import require_http_methods
 import json
 from django.utils import timezone
-
-
+from datetime import timedelta, datetime
+from django.core.exceptions import ValidationError
 
 
 def is_staff_or_superuser(user):
     return user.is_staff or user.is_superuser
 
 
-# Create your views here.
+# Home view
 def home(request):
     return render(request, 'home.html')
 
@@ -70,6 +70,9 @@ def contact(request):
 def custom_permission_denied_view(request, exception):
     return render(request, '403.html', status=403)
 
+
+# still working on the following views functions
+
 @login_required
 @user_passes_test(is_staff_or_superuser)
 def admin_panel(request):
@@ -78,17 +81,50 @@ def admin_panel(request):
     return render(request, 'panel.html', {'availabilities': availabilities, 'appointments': appointments})
 
 
+
+
 @login_required
 @user_passes_test(is_staff_or_superuser)
 @require_http_methods(["POST"])
 def add_availability(request):
     data = json.loads(request.body)
-    availability = Availability.objects.create(
-        date=data['date'],
-        start_time=data['startTime'],
-        end_time=data['endTime']
-    )
-    return JsonResponse({'status': 'success', 'id': availability.id})
+    start_time = datetime.strptime(data['startTime'], '%H:%M')
+    end_time = (start_time + timedelta(hours=1)).strftime('%H:%M')
+    try:
+        availability = Availability.objects.create(
+            date=data['date'],
+            start_time=data['startTime'],
+            end_time=end_time
+        )
+        return JsonResponse({'status': 'success', 'id': availability.id})
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+@require_http_methods(["POST"])
+def edit_availability(request, availability_id):
+    availability = get_object_or_404(Availability, id=availability_id)
+    if availability.is_booked:
+        return JsonResponse({'status': 'error', 'message': 'No se puede editar una disponibilidad reservada'})
+    
+    data = json.loads(request.body)
+    start_time = datetime.strptime(data['startTime'], '%H:%M')
+    end_time = (start_time + timedelta(hours=1)).strftime('%H:%M')
+    try:
+        availability.date = data['date']
+        availability.start_time = data['startTime']
+        availability.end_time = end_time
+        availability.save()
+        return JsonResponse({'status': 'success'})
+    except ValidationError as e:
+        return JsonResponse({'status': 'error', 'message': str(e)})
+
+
+
 
 @login_required
 @user_passes_test(is_staff_or_superuser)
@@ -101,6 +137,35 @@ def delete_availability(request, availability_id):
     else:
         return JsonResponse({'status': 'error', 'message': 'No se puede eliminar una disponibilidad reservada'})
 
+
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+@require_http_methods(["POST"])
+def add_recurring_availability(request):
+    data = json.loads(request.body)
+    start_date = datetime.strptime(data['startDate'], '%Y-%m-%d').date()
+    end_date = datetime.strptime(data['endDate'], '%Y-%m-%d').date()
+    days = data['days']  # List of days (0-6, where 0 is Monday)
+    start_time = data['startTime']
+    end_time = (datetime.strptime(start_time, '%H:%M') + timedelta(hours=1)).strftime('%H:%M')
+
+    created_availabilities = []
+    current_date = start_date
+    while current_date <= end_date:
+        if current_date.weekday() in days:
+            try:
+                availability = Availability.objects.create(
+                    date=current_date,
+                    start_time=start_time,
+                    end_time=end_time
+                )
+                created_availabilities.append(availability.id)
+            except ValidationError:
+                pass  # Skip if there's a validation error (e.g., overlapping availability)
+        current_date += timedelta(days=1)
+
+    return JsonResponse({'status': 'success', 'created_availabilities': created_availabilities})
 
 
 
@@ -156,7 +221,11 @@ def update_google_meet_link(request, appointment_id):
 
 
 @login_required
+@user_passes_test(is_staff_or_superuser)
 def get_availabilities(request):
-    availabilities = Availability.objects.filter(is_booked=False, date__gte=timezone.now().date()).order_by('date', 'start_time')
+    availabilities = Availability.objects.filter(
+        date__gte=timezone.now().date(),
+        is_booked=False
+    ).order_by('date', 'start_time')
     data = list(availabilities.values('id', 'date', 'start_time', 'end_time'))
     return JsonResponse(data, safe=False)

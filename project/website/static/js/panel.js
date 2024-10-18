@@ -1,78 +1,153 @@
 document.addEventListener('DOMContentLoaded', function() {
     // Initialize Flatpickr for date and time inputs
-    flatpickr("#date", {
+    flatpickr("#date, #startDate, #endDate", {
         dateFormat: "Y-m-d",
         minDate: "today",
     });
 
-    flatpickr("#startTime, #endTime", {
+    flatpickr("#startTime, #recurringStartTime", {
         enableTime: true,
         noCalendar: true,
         dateFormat: "H:i",
         time_24hr: true,
+        minuteIncrement: 60,
     });
 
-    // Initialize FullCalendar
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        events: fetchAvailabilities,
-        eventClick: function(info) {
-            if (confirm('¿Desea eliminar esta disponibilidad?')) {
-                deleteAvailability(info.event.id);
-            }
-        }
-    });
-    calendar.render();
-
-    // Handle form submission for adding availability
+    // Handle form submission for adding individual availability
     const availabilityForm = document.getElementById('availabilityForm');
     availabilityForm.addEventListener('submit', function(e) {
         e.preventDefault();
         const date = document.getElementById('date').value;
         const startTime = document.getElementById('startTime').value;
-        const endTime = document.getElementById('endTime').value;
         
+        addAvailability(date, startTime);
+    });
+
+    // Handle form submission for adding recurring availability
+    const recurringAvailabilityForm = document.getElementById('recurringAvailabilityForm');
+    recurringAvailabilityForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const startDate = document.getElementById('startDate').value;
+        const endDate = document.getElementById('endDate').value;
+        const days = Array.from(document.querySelectorAll('input[name="days"]:checked')).map(input => parseInt(input.value));
+        const startTime = document.getElementById('recurringStartTime').value;
+        
+        addRecurringAvailability(startDate, endDate, days, startTime);
+    });
+
+    // Fetch and display availabilities
+    fetchAvailabilities();
+
+    function addAvailability(date, startTime) {
         fetch('/add-availability/', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
                 'X-CSRFToken': getCookie('csrftoken')
             },
-            body: JSON.stringify({ date, startTime, endTime })
+            body: JSON.stringify({ date, startTime })
         })
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
                 alert('Disponibilidad agregada con éxito');
                 availabilityForm.reset();
-                calendar.refetchEvents();
+                fetchAvailabilities();
+            } else {
+                alert(`Error: ${data.message}`);
             }
         });
-    });
+    }
 
-    // Function to fetch availabilities
-    function fetchAvailabilities(fetchInfo, successCallback, failureCallback) {
+    function addRecurringAvailability(startDate, endDate, days, startTime) {
+        fetch('/add-recurring-availability/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ startDate, endDate, days, startTime })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert(`Se agregaron ${data.created_availabilities.length} disponibilidades recurrentes`);
+                recurringAvailabilityForm.reset();
+                fetchAvailabilities();
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        });
+    }
+
+    function fetchAvailabilities() {
         fetch('/get-availabilities/')
             .then(response => response.json())
             .then(data => {
-                const events = data.map(availability => ({
-                    id: availability.id,
-                    title: 'Disponible',
-                    start: `${availability.date}T${availability.start_time}`,
-                    end: `${availability.date}T${availability.end_time}`,
-                    color: 'green'
-                }));
-                successCallback(events);
+                displayAvailabilities(data);
             })
             .catch(error => {
-                failureCallback(error);
+                console.error('Error fetching availabilities:', error);
             });
     }
 
-    // Function to delete availability
+    function displayAvailabilities(availabilities) {
+        const availabilityList = document.getElementById('availabilityList');
+        availabilityList.innerHTML = '';
+        if (availabilities.length === 0) {
+            availabilityList.innerHTML = '<li>No hay horarios disponibles registrados.</li>';
+        } else {
+            availabilities.forEach(availability => {
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    ${availability.date} ${availability.start_time} - ${availability.end_time}
+                    <button class="btn-secondary delete-availability" data-id="${availability.id}">Eliminar</button>
+                `;
+                availabilityList.appendChild(li);
+            });
+        }
+
+        // Add event listeners for delete buttons
+        document.querySelectorAll('.delete-availability').forEach(button => {
+            button.addEventListener('click', function() {
+                deleteAvailability(this.dataset.id);
+            });
+        });
+    }
+
     function deleteAvailability(availabilityId) {
-        fetch(`/delete-availability/${availabilityId}/`, {
+        if (confirm('¿Está seguro de que desea eliminar esta disponibilidad?')) {
+            fetch(`/delete-availability/${availabilityId}/`, {
+                method: 'POST',
+                headers: {
+                    'X-CSRFToken': getCookie('csrftoken')
+                }
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.status === 'success') {
+                    alert('Disponibilidad eliminada con éxito');
+                    fetchAvailabilities();
+                } else {
+                    alert(`Error: ${data.message}`);
+                }
+            });
+        }
+    }
+
+    // Handle recording payments
+    const appointmentsList = document.getElementById('appointmentsList');
+    if (appointmentsList) {
+        appointmentsList.addEventListener('click', function(e) {
+            if (e.target.classList.contains('record-payment')) {
+                const appointmentId = e.target.getAttribute('data-id');
+                recordPayment(appointmentId);
+            }
+        });
+    }
+
+    function recordPayment(appointmentId) {
+        fetch(`/record-payment/${appointmentId}/`, {
             method: 'POST',
             headers: {
                 'X-CSRFToken': getCookie('csrftoken')
@@ -81,67 +156,45 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(response => response.json())
         .then(data => {
             if (data.status === 'success') {
-                calendar.refetchEvents();
+                alert('Pago registrado con éxito');
+                location.reload(); // Refresh the page to update the UI
             } else {
-                alert(data.message);
+                alert(`Error: ${data.message}`);
             }
         });
     }
 
-    // Handle recording payments
-    const appointmentsList = document.getElementById('appointmentsList');
-    appointmentsList.addEventListener('click', function(e) {
-        if (e.target.classList.contains('record-payment')) {
-            const appointmentId = e.target.getAttribute('data-id');
-            fetch(`/record-payment/${appointmentId}/`, {
-                method: 'POST',
-                headers: {
-                    'X-CSRFToken': getCookie('csrftoken')
-                }
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    e.target.textContent = 'Pagado';
-                    e.target.disabled = true;
-                    updateTotalEarnings();
-                }
-            });
-        }
-    });
-
     // Handle updating Google Meet links
-    appointmentsList.addEventListener('submit', function(e) {
-        if (e.target.classList.contains('google-meet-form')) {
-            e.preventDefault();
-            const form = e.target;
-            const appointmentId = form.dataset.id;
-            const googleMeetLink = form.elements.google_meet_link.value;
-
-            fetch(`/update-google-meet-link/${appointmentId}/`, {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded',
-                    'X-CSRFToken': getCookie('csrftoken')
-                },
-                body: `google_meet_link=${encodeURIComponent(googleMeetLink)}`
-            })
-            .then(response => response.json())
-            .then(data => {
-                if (data.status === 'success') {
-                    alert('Enlace de Google Meet actualizado con éxito');
-                }
-            });
-        }
-    });
-
-    function updateTotalEarnings() {
-        const totalEarnings = document.getElementById('totalEarnings');
-        const paidAppointments = document.querySelectorAll('.record-payment[disabled]').length;
-        totalEarnings.textContent = paidAppointments * 400; // Assuming 400 pesos per session
+    if (appointmentsList) {
+        appointmentsList.addEventListener('submit', function(e) {
+            if (e.target.classList.contains('google-meet-form')) {
+                e.preventDefault();
+                const form = e.target;
+                const appointmentId = form.dataset.id;
+                const googleMeetLink = form.elements.google_meet_link.value;
+                updateGoogleMeetLink(appointmentId, googleMeetLink);
+            }
+        });
     }
 
-    updateTotalEarnings();
+    function updateGoogleMeetLink(appointmentId, googleMeetLink) {
+        fetch(`/update-google-meet-link/${appointmentId}/`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: `google_meet_link=${encodeURIComponent(googleMeetLink)}`
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                alert('Enlace de Google Meet actualizado con éxito');
+            } else {
+                alert(`Error: ${data.message}`);
+            }
+        });
+    }
 
     // Function to get CSRF token
     function getCookie(name) {
@@ -157,5 +210,23 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
         return cookieValue;
+    }
+
+    // Calculate and display total earnings
+    function updateTotalEarnings() {
+        const paidAppointments = document.querySelectorAll('.paid').length;
+        const totalEarnings = paidAppointments * 400; // Assuming 400 pesos per session
+        document.getElementById('totalEarnings').textContent = totalEarnings;
+    }
+
+    updateTotalEarnings();
+
+    // Generate report functionality
+    const generateReportButton = document.getElementById('generateReport');
+    if (generateReportButton) {
+        generateReportButton.addEventListener('click', function() {
+            // This is a placeholder for report generation functionality
+            alert('Funcionalidad de generación de reportes aún no implementada.');
+        });
     }
 });
