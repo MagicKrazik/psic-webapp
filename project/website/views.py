@@ -17,6 +17,12 @@ from django.core.mail import send_mail
 from django.conf import settings
 from django.core.serializers.json import DjangoJSONEncoder
 import socket
+from django.http import HttpResponse
+from django.template.loader import get_template
+from xhtml2pdf import pisa
+from io import BytesIO
+from django.core.mail import EmailMessage
+
 
 
 
@@ -197,28 +203,42 @@ def appointment(request):
 def book_appointment(request):
     data = json.loads(request.body)
     availability = get_object_or_404(Availability, id=data['availability_id'])
+    
     if not availability.is_booked:
-        appointment = Appointment.objects.create(
-            user=request.user,
-            availability=availability
-        )
-        availability.is_booked = True
-        availability.save()
-
-        # Try to send confirmation emails, but don't block if it fails
         try:
-            send_confirmation_email_to_user(appointment)
-            send_confirmation_email_to_admin(appointment)
-        except (socket.gaierror, Exception) as e:
-            print(f"Failed to send confirmation email: {str(e)}")
+            appointment = Appointment.objects.create(
+                user=request.user,
+                availability=availability
+            )
+            availability.is_booked = True
+            availability.save()
 
-        return JsonResponse({
-            'status': 'success',
-            'id': appointment.id,
-            'date': appointment.availability.date.strftime('%Y-%m-%d'),
-            'time': appointment.availability.start_time.strftime('%H:%M'),
-            'username': request.user.username
-        })
+            email_sent = send_confirmation_email_to_user(appointment)
+            if not email_sent:
+                # Log the email sending failure, but don't prevent booking
+                print(f"Failed to send confirmation email for appointment {appointment.id}")
+
+            try:
+                send_confirmation_email_to_admin(appointment)
+            except Exception as e:
+                # Log the admin email sending failure, but don't prevent booking
+                print(f"Failed to send admin notification for appointment {appointment.id}: {str(e)}")
+
+            return JsonResponse({
+                'status': 'success',
+                'id': appointment.id,
+                'date': appointment.availability.date.strftime('%Y-%m-%d'),
+                'time': appointment.availability.start_time.strftime('%H:%M'),
+                'username': request.user.username
+            })
+        except Exception as e:
+            # If there's an error during the booking process, rollback the changes
+            if 'appointment' in locals():
+                appointment.delete()
+            if availability.is_booked:
+                availability.is_booked = False
+                availability.save()
+            return JsonResponse({'status': 'error', 'message': f'Error al reservar la cita: {str(e)}'}, status=500)
     else:
         return JsonResponse({'status': 'error', 'message': 'Esta disponibilidad ya ha sido reservada'})
 
@@ -252,23 +272,53 @@ def get_availabilities(request):
 
 # Send Confirmation emails to user and admin
 
+def generate_pdf(context):
+    template = get_template('recomendaciones_pdf.html')
+    html = template.render(context)
+    result = BytesIO()
+    pdf = pisa.pisaDocument(BytesIO(html.encode("UTF-8")), result)
+    if not pdf.err:
+        return result.getvalue()
+    return None
 
 def send_confirmation_email_to_user(appointment):
     subject = 'Confirmación de Cita'
+    context = {
+        'username': appointment.user.username,
+        'date': appointment.availability.date,
+        'time': appointment.availability.start_time.strftime('%H:%M')
+    }
+    
     message = f"""
     Estimado/a {appointment.user.username},
 
-    Su cita ha sido confirmada para el {appointment.availability.date} a las {appointment.availability.start_time}.
+    Su cita ha sido confirmada para el {appointment.availability.date} a las {appointment.availability.start_time.strftime('%H:%M')}.
+
+    Adjunto encontrará un PDF con recomendaciones importantes para su sesión.
 
     Gracias por agendar una cita con Psic. Susana Dávila.
 
     Saludos cordiales,
     Equipo de Psic. Susana Dávila
     """
+    
     try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [appointment.user.email])
+        pdf_content = generate_pdf(context)
+        if pdf_content:
+            email = EmailMessage(
+                subject,
+                message,
+                settings.DEFAULT_FROM_EMAIL,
+                [appointment.user.email]
+            )
+            email.attach('recomendaciones.pdf', pdf_content, 'application/pdf')
+            email.send(fail_silently=False)
+            return True
+        else:
+            raise Exception("Failed to generate PDF")
     except Exception as e:
         print(f"Failed to send user confirmation email: {str(e)}")
+        return False
 
 
 def send_confirmation_email_to_admin(appointment):
@@ -327,3 +377,36 @@ def get_user_appointment(request):
     except Appointment.DoesNotExist:
         data = {'status': 'error', 'message': 'No se encontró cita'}
     return JsonResponse(data)
+
+
+
+### download pdf recommendations report, the report should also be sent by email to the user as confirmation
+
+
+@login_required
+def recomendaciones(request):
+    return render(request, 'recomendaciones.html')
+
+
+@login_required
+def download_recomendaciones_pdf(request):
+    try:
+        appointment = Appointment.objects.filter(user=request.user).latest('created_at')
+        context = {
+            'username': request.user.username,
+            'date': appointment.availability.date,
+            'time': appointment.availability.start_time.strftime('%H:%M')
+        }
+    except Appointment.DoesNotExist:
+        context = {
+            'username': request.user.username,
+            'date': None,
+            'time': None
+        }
+
+    pdf_content = generate_pdf(context)
+    if pdf_content:
+        response = HttpResponse(pdf_content, content_type='application/pdf')
+        response['Content-Disposition'] = 'attachment; filename="recomendaciones.pdf"'
+        return response
+    return HttpResponse('Error generating PDF', status=500)

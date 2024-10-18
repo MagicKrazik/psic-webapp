@@ -28,5 +28,6 @@ urlpatterns = [
 
     path('recomendaciones/', views.recomendaciones, name='recomendaciones'),
     path('get-user-appointment/', views.get_user_appointment, name='get_user_appointment'),
+    path('download-recomendaciones-pdf/', views.download_recomendaciones_pdf, name='download_recomendaciones_pdf'),
 
 ]    

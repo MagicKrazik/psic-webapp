@@ -1,7 +1,7 @@
 document.addEventListener('DOMContentLoaded', function() {
     const welcomeMessage = document.getElementById('welcome-message');
+    const downloadPdfButton = document.getElementById('download-pdf');
     
-    // Función para obtener los datos de la cita del usuario
     function fetchAppointmentData() {
         fetch('/get-user-appointment/')
             .then(response => response.json())
@@ -18,7 +18,6 @@ document.addEventListener('DOMContentLoaded', function() {
             });
     }
 
-    // Función para actualizar el mensaje de bienvenida
     function updateWelcomeMessage(data) {
         const appointmentDate = new Date(data.date);
         const formattedDate = appointmentDate.toLocaleDateString('es-ES', { 
@@ -36,6 +35,9 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    // Llamar a la función para obtener los datos de la cita
+    downloadPdfButton.addEventListener('click', function() {
+        window.location.href = '/download-recomendaciones-pdf/';
+    });
+
     fetchAppointmentData();
 });
