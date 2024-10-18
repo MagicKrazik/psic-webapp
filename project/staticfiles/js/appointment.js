@@ -1,57 +1,63 @@
 document.addEventListener('DOMContentLoaded', function() {
-    var calendarEl = document.getElementById('calendar');
-    var calendar = new FullCalendar.Calendar(calendarEl, {
-        initialView: 'dayGridMonth',
-        headerToolbar: {
-            left: 'prev,next today',
-            center: 'title',
-            right: 'dayGridMonth,timeGridWeek'
-        },
-        locale: 'es',
-        events: fetchAvailabilities,
-        eventClick: function(info) {
-            document.getElementById('availability').value = info.event.id;
-        }
-    });
-    calendar.render();
+    const availabilitySelect = document.getElementById('availability-select');
+    const bookAppointmentButton = document.getElementById('book-appointment');
+    const appointmentConfirmation = document.getElementById('appointment-confirmation');
+    const confirmedDate = document.getElementById('confirmed-date');
+    const confirmedTime = document.getElementById('confirmed-time');
+    const userAppointmentsList = document.getElementById('user-appointments-list');
+    const loadingElement = document.getElementById('loading');
 
-    function fetchAvailabilities(fetchInfo, successCallback, failureCallback) {
+    function showLoading() {
+        loadingElement.style.display = 'block';
+    }
+
+    function hideLoading() {
+        loadingElement.style.display = 'none';
+    }
+
+    // Fetch availabilities and populate the select element
+    function fetchAvailabilities() {
+        showLoading();
         fetch('/get-availabilities/')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
             .then(data => {
-                const events = data.map(availability => ({
-                    id: availability.id,
-                    title: 'Disponible',
-                    start: `${availability.date}T${availability.start_time}`,
-                    end: `${availability.date}T${availability.end_time}`,
-                    color: 'green'
-                }));
-                successCallback(events);
-                updateAvailabilityOptions(data);
+                availabilitySelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                if (data.length === 0) {
+                    const option = document.createElement('option');
+                    option.textContent = 'No hay horarios disponibles';
+                    availabilitySelect.appendChild(option);
+                } else {
+                    data.forEach(availability => {
+                        const option = document.createElement('option');
+                        option.value = availability.id;
+                        option.textContent = `${formatDate(availability.date)} ${availability.start_time} - ${availability.end_time}`;
+                        availabilitySelect.appendChild(option);
+                    });
+                }
             })
             .catch(error => {
-                failureCallback(error);
+                console.error('Error fetching availabilities:', error);
+                availabilitySelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+            })
+            .finally(() => {
+                hideLoading();
             });
     }
 
-    function updateAvailabilityOptions(availabilities) {
-        const select = document.getElementById('availability');
-        select.innerHTML = '<option value="">Seleccione un horario</option>';
-        availabilities.forEach(availability => {
-            const option = document.createElement('option');
-            option.value = availability.id;
-            option.textContent = `${availability.date} ${availability.start_time} - ${availability.end_time}`;
-            select.appendChild(option);
-        });
-    }
+    // Book appointment
+    bookAppointmentButton.addEventListener('click', function() {
+        const availabilityId = availabilitySelect.value;
+        if (!availabilityId) {
+            alert('Por favor, seleccione un horario disponible.');
+            return;
+        }
 
-    const bookingForm = document.getElementById('booking-form');
-    const appointmentDetails = document.getElementById('appointment-details');
-
-    bookingForm.addEventListener('submit', function(e) {
-        e.preventDefault();
-        const availabilityId = document.getElementById('availability').value;
-        
+        showLoading();
         fetch('/book-appointment/', {
             method: 'POST',
             headers: {
@@ -60,50 +66,70 @@ document.addEventListener('DOMContentLoaded', function() {
             },
             body: JSON.stringify({ availability_id: availabilityId })
         })
-        .then(response => response.json())
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             if (data.status === 'success') {
-                alert('Cita agendada con éxito');
-                calendar.refetchEvents();
-                bookingForm.reset();
-                showAppointmentDetails(data);
+                confirmedDate.textContent = formatDate(data.date);
+                confirmedTime.textContent = data.time;
+                appointmentConfirmation.style.display = 'block';
+                fetchAvailabilities();
+                updateUserAppointments();
             } else {
-                alert(data.message);
+                throw new Error(data.message || 'Error al reservar la cita');
             }
+        })
+        .catch(error => {
+            console.error('Error booking appointment:', error);
+            alert('Hubo un problema al reservar la cita. Por favor, inténtelo de nuevo más tarde.');
+        })
+        .finally(() => {
+            hideLoading();
         });
     });
 
-    function showAppointmentDetails(data) {
-        document.getElementById('appointment-date').textContent = data.date;
-        document.getElementById('appointment-time').textContent = data.time;
-        document.getElementById('appointment-username').textContent = data.username;
-        document.getElementById('google-meet-link').textContent = 'Pendiente';
-        document.getElementById('google-meet-link').href = '#';
-        appointmentDetails.style.display = 'block';
-        bookingForm.style.display = 'none';
+    // Update user appointments list
+    function updateUserAppointments() {
+        showLoading();
+        fetch('/get-user-appointments/')
+            .then(response => response.json())
+            .then(data => {
+                userAppointmentsList.innerHTML = '';
+                data.forEach(appointment => {
+                    const li = document.createElement('li');
+                    li.textContent = `${appointment.date} ${appointment.time}`;
+                    if (appointment.google_meet_link) {
+                        const link = document.createElement('a');
+                        link.href = appointment.google_meet_link;
+                        link.textContent = 'Unirse a la videollamada';
+                        link.target = '_blank';
+                        link.className = 'meet-link';
+                        li.appendChild(document.createTextNode(' - '));
+                        li.appendChild(link);
+                    } else {
+                        const span = document.createElement('span');
+                        span.textContent = 'Enlace pendiente';
+                        span.className = 'pending';
+                        li.appendChild(document.createTextNode(' - '));
+                        li.appendChild(span);
+                    }
+                    userAppointmentsList.appendChild(li);
+                });
+                if (data.length === 0) {
+                    userAppointmentsList.innerHTML = '<li>No tienes citas programadas.</li>';
+                }
+            })
+            .catch(error => console.error('Error fetching user appointments:', error))
+            .finally(() => {
+                hideLoading();
+            });
     }
 
-    // Update Google Meet links for existing appointments
-    function updateGoogleMeetLinks() {
-        const links = document.querySelectorAll('.google-meet-link');
-        links.forEach(link => {
-            if (link.textContent === 'Pendiente') {
-                const appointmentId = link.dataset.appointmentId;
-                fetch(`/get-google-meet-link/${appointmentId}/`)
-                    .then(response => response.json())
-                    .then(data => {
-                        if (data.google_meet_link) {
-                            link.textContent = 'Unirse a la videollamada';
-                            link.href = data.google_meet_link;
-                        }
-                    });
-            }
-        });
-    }
-
-    // Call this function periodically to update links
-    setInterval(updateGoogleMeetLinks, 60000); // Check every minute
-
+    // Helper function to get CSRF token
     function getCookie(name) {
         let cookieValue = null;
         if (document.cookie && document.cookie !== '') {
@@ -118,4 +144,14 @@ document.addEventListener('DOMContentLoaded', function() {
         }
         return cookieValue;
     }
+
+    // Helper function to format date
+    function formatDate(dateString) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return new Date(dateString).toLocaleDateString('es-ES', options);
+    }
+
+    // Initial fetch of availabilities and user appointments
+    fetchAvailabilities();
+    updateUserAppointments();
 });

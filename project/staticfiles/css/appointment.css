@@ -1,112 +1,78 @@
+body {
+    font-family: 'Arial', sans-serif;
+    line-height: 1.6;
+    color: var(--text-color);
+    background-color: var(--background-color);
+}
+
 .appointment-container {
-    max-width: 1200px;
+    max-width: 800px;
     margin: 0 auto;
-    padding: 0rem;
-    padding-bottom: 1rem;
+    padding: 20px;
+}
+
+h1, h2 {
+    color: var(--primary-color);
 }
 
 h1 {
-    color: var(--primary-color);
     text-align: center;
-    margin-bottom: 2rem;
-    font-size: 2rem;
+    margin-bottom: 30px;
 }
 
-.appointment-grid {
-    display: grid;
-    grid-template-columns: 1fr;
-    gap: 2rem;
+.appointment-form, .confirmation, .user-appointments {
+    background-color: #fff;
+    border-radius: 8px;
+    padding: 20px;
+    margin-bottom: 30px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-.calendar-container, .booking-form-container {
-    background-color: var(--section-bg-color);
-    border-radius: 10px;
-    padding: 1.5rem;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-}
-
-#calendar {
-    height: 100%;
-    min-height: 300px;
-}
-
-.booking-form-container h2 {
-    color: var(--secondary-color);
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-}
-
-.form-group {
-    margin-bottom: 1.5rem;
-}
-
-label {
-    display: block;
-    margin-bottom: 0.5rem;
-    color: var(--text-color);
-}
-
-input, select {
+select, button {
     width: 100%;
-    padding: 0.75rem;
-    border: 1px solid #ccc;
+    padding: 12px;
+    margin-bottom: 15px;
+    border: 1px solid var(--border-color);
     border-radius: 4px;
-    font-size: 1rem;
+    font-size: 16px;
 }
 
-.submit-button {
-    background-color: var(--primary-color);
+button {
+    background-color: var(--secondary-color);
     color: white;
     border: none;
-    padding: 0.75rem 1.5rem;
-    border-radius: 5px;
-    font-size: 1rem;
     cursor: pointer;
     transition: background-color 0.3s ease;
-    width: 100%;
 }
 
-.submit-button:hover {
-    background-color: var(--secondary-color);
+button:hover {
+    background-color: #4cae4c;
 }
 
-@media screen and (min-width: 768px) {
-    .appointment-grid {
-        grid-template-columns: 1fr 1fr;
-    }
-
-    h1 {
-        font-size: 2.5rem;
-    }
-
-    .booking-form-container h2 {
-        font-size: 2rem;
-    }
-
-    #calendar {
-        min-height: 400px;
-    }
-
-    .submit-button {
-        width: auto;
-    }
+.loading {
+    text-align: center;
+    margin: 20px 0;
 }
 
-@media screen and (min-width: 1024px) {
-    .appointment-container {
-        padding: 2rem;
-    }
+.spinner {
+    border: 4px solid #f3f3f3;
+    border-top: 4px solid var(--primary-color);
+    border-radius: 50%;
+    width: 40px;
+    height: 40px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto 10px;
 }
 
-/* ... (existing styles) ... */
-
-.user-appointments {
-    margin-top: 2rem;
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
 }
 
-.user-appointments h2 {
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
+.confirmation {
+    background-color: #dff0d8;
+    border-color: #d6e9c6;
+    color: #3c763d;
 }
 
 .user-appointments ul {
@@ -115,18 +81,31 @@ input, select {
 }
 
 .user-appointments li {
-    margin-bottom: 0.5rem;
-}
-
-#appointment-details {
-    margin-top: 2rem;
-    background-color: #f8f9fa;
-    border: 1px solid #e9ecef;
+    background-color: #f0f0f0;
+    padding: 12px;
+    margin-bottom: 10px;
     border-radius: 4px;
-    padding: 1rem;
 }
 
-#appointment-details h3 {
-    color: var(--secondary-color);
-    margin-bottom: 1rem;
+.meet-link {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.meet-link:hover {
+    text-decoration: underline;
+}
+
+.pending {
+    color: #999;
+}
+
+@media (max-width: 600px) {
+    .appointment-container {
+        padding: 10px;
+    }
+
+    select, button {
+        font-size: 14px;
+    }
 }

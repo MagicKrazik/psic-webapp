@@ -141,13 +141,31 @@ CACHES = {
     }
 }
 
-EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
-EMAIL_HOST = 'smtp.gmail.com'
+
+#### Real email backend connection, do not delete this part.
+
+#EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'
+#MAIL_HOST = 'smtp.gmail.com'
+#EMAIL_PORT = 587
+#EMAIL_USE_TLS = True
+#EMAIL_HOST_USER = 'carlos.horacio.olivares@gmail.com'
+#EMAIL_HOST_PASSWORD = 'zhtu fjgf kbyw klat'
+
+#DEFAULT_FROM_EMAIL = 'noreply@torresamaurel.com'
+
+#PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds
+
+
+
+#### for debug process we will use this code:
+
+# Email settings
+EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
+# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production
+EMAIL_HOST = 'your_smtp_host'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
-EMAIL_HOST_USER = 'carlos.horacio.olivares@gmail.com'
-EMAIL_HOST_PASSWORD = 'zhtu fjgf kbyw klat'
+EMAIL_HOST_USER = 'your_email@example.com'
+EMAIL_HOST_PASSWORD = 'your_email_password'
+DEFAULT_FROM_EMAIL = 'Psic. Susana Dávila <noreply@example.com>'
 
-DEFAULT_FROM_EMAIL = 'noreply@torresamaurel.com'
-
-PASSWORD_RESET_TIMEOUT = 86400  # 24 hours in seconds

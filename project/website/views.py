@@ -7,12 +7,19 @@ from django.contrib.auth import logout
 from django.contrib.auth import authenticate
 from django.core.exceptions import PermissionDenied
 from django.http import JsonResponse
-from .models import Availability, Appointment
 from django.views.decorators.http import require_http_methods
 import json
 from django.utils import timezone
 from datetime import timedelta, datetime
 from django.core.exceptions import ValidationError
+from .models import Availability, Appointment, CustomUser
+from django.core.mail import send_mail
+from django.conf import settings
+from django.core.serializers.json import DjangoJSONEncoder
+import socket
+
+
+
 
 
 def is_staff_or_superuser(user):
@@ -197,6 +204,14 @@ def book_appointment(request):
         )
         availability.is_booked = True
         availability.save()
+
+        # Try to send confirmation emails, but don't block if it fails
+        try:
+            send_confirmation_email_to_user(appointment)
+            send_confirmation_email_to_admin(appointment)
+        except (socket.gaierror, Exception) as e:
+            print(f"Failed to send confirmation email: {str(e)}")
+
         return JsonResponse({
             'status': 'success',
             'id': appointment.id,
@@ -206,6 +221,7 @@ def book_appointment(request):
         })
     else:
         return JsonResponse({'status': 'error', 'message': 'Esta disponibilidad ya ha sido reservada'})
+
     
 
 @login_required
@@ -221,11 +237,93 @@ def update_google_meet_link(request, appointment_id):
 
 
 @login_required
-@user_passes_test(is_staff_or_superuser)
+@require_http_methods(["GET"])
 def get_availabilities(request):
-    availabilities = Availability.objects.filter(
-        date__gte=timezone.now().date(),
-        is_booked=False
-    ).order_by('date', 'start_time')
-    data = list(availabilities.values('id', 'date', 'start_time', 'end_time'))
+    try:
+        availabilities = Availability.objects.filter(
+            date__gte=timezone.now().date(),
+            is_booked=False
+        ).order_by('date', 'start_time')
+        data = list(availabilities.values('id', 'date', 'start_time', 'end_time'))
+        return JsonResponse(data, safe=False, encoder=DjangoJSONEncoder)
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+
+
+# Send Confirmation emails to user and admin
+
+
+def send_confirmation_email_to_user(appointment):
+    subject = 'Confirmación de Cita'
+    message = f"""
+    Estimado/a {appointment.user.username},
+
+    Su cita ha sido confirmada para el {appointment.availability.date} a las {appointment.availability.start_time}.
+
+    Gracias por agendar una cita con Psic. Susana Dávila.
+
+    Saludos cordiales,
+    Equipo de Psic. Susana Dávila
+    """
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [appointment.user.email])
+    except Exception as e:
+        print(f"Failed to send user confirmation email: {str(e)}")
+
+
+def send_confirmation_email_to_admin(appointment):
+    admin_email = CustomUser.objects.filter(is_staff=True).first().email
+    subject = 'Nueva Cita Agendada'
+    message = f"""
+    Se ha agendado una nueva cita:
+
+    Usuario: {appointment.user.username}
+    Fecha: {appointment.availability.date}
+    Hora: {appointment.availability.start_time}
+
+    Por favor, actualice el enlace de Google Meet para esta cita.
+
+    Saludos cordiales,
+    Sistema de Citas
+    """
+    try:
+        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email])
+    except Exception as e:
+        print(f"Failed to send admin confirmation email: {str(e)}")
+
+
+
+# NO borrar
+@login_required
+def get_user_appointments(request):
+    appointments = Appointment.objects.filter(user=request.user).order_by('availability__date', 'availability__start_time')
+    data = [{
+        'date': appointment.availability.date.strftime('%d/%m/%Y'),
+        'time': appointment.availability.start_time.strftime('%H:%M'),
+        'google_meet_link': appointment.google_meet_link
+    } for appointment in appointments]
     return JsonResponse(data, safe=False)
+
+
+
+## para la confirmacion de citas, son dos views distintos get_user_appointment != get_user_appointments
+
+@login_required
+def recomendaciones(request):
+    return render(request, 'recomendaciones.html')
+
+
+# NO borrar
+@login_required
+def get_user_appointment(request):
+    try:
+        appointment = Appointment.objects.filter(user=request.user).latest('created_at')
+        data = {
+            'status': 'success',
+            'username': request.user.username,
+            'date': appointment.availability.date.strftime('%Y-%m-%d'),
+            'time': appointment.availability.start_time.strftime('%H:%M')
+        }
+    except Appointment.DoesNotExist:
+        data = {'status': 'error', 'message': 'No se encontró cita'}
+    return JsonResponse(data)

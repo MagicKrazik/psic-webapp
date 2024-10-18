@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Recomendaciones para su Cita - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/recomendaciones.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="recomendaciones-container">
+    <h1>Recomendaciones para su Cita</h1>
+    
+    <div id="welcome-message" class="welcome-message">
+        <!-- El mensaje de bienvenida se insertará aquí mediante JavaScript -->
+    </div>
+
+    <div class="recomendaciones-list">
+        <h2>Antes de su Sesión</h2>
+        <ul>
+            <li>Elija un lugar tranquilo y privado para su sesión en línea.</li>
+            <li>Asegúrese de tener una conexión a Internet estable.</li>
+            <li>Pruebe su cámara y micrófono antes de la sesión.</li>
+            <li>Tenga a mano papel y lápiz para tomar notas si lo desea.</li>
+            <li>Reflexione sobre los temas que desea abordar en la sesión.</li>
+            <li>Llegue puntualmente a su cita virtual.</li>
+            <li>Apague las notificaciones de su dispositivo para evitar distracciones.</li>
+            <li>Tenga un vaso de agua cerca por si lo necesita.</li>
+            <li>Vístase cómodamente, como lo haría para una sesión presencial.</li>
+            <li>Recuerde que la terapia es un espacio seguro y confidencial.</li>
+        </ul>
+    </div>
+
+    <div class="preparacion-mental">
+        <h2>Preparación Mental</h2>
+        <p>Es normal sentir nervios antes de su primera sesión. Recuerde que está dando un paso importante para su bienestar mental. Practique algunas respiraciones profundas antes de comenzar para ayudar a calmar cualquier ansiedad.</p>
+    </div>
+
+    <div class="expectativas">
+        <h2>Expectativas</h2>
+        <p>La primera sesión suele ser más informativa. No se preocupe si no aborda todos sus problemas de inmediato. Este es el comienzo de un proceso de crecimiento y autodescubrimiento.</p>
+    </div>
+
+    <div class="cta-section">
+        <p>Si tiene alguna pregunta antes de su cita, no dude en contactarnos.</p>
+        <a href="{% url 'contact' %}" class="cta-button">Contactar</a>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/recomendaciones.js' %}"></script>
+{% endblock %}
