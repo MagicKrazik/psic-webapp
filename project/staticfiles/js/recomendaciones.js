@@ -19,7 +19,8 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function updateWelcomeMessage(data) {
-        const appointmentDate = new Date(data.date);
+        const [day, month, year] = data.date.split('/');
+        const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
         const formattedDate = appointmentDate.toLocaleDateString('es-ES', { 
             weekday: 'long', 
             year: 'numeric', 
@@ -35,9 +36,11 @@ document.addEventListener('DOMContentLoaded', function() {
         `;
     }
 
-    downloadPdfButton.addEventListener('click', function() {
-        window.location.href = '/download-recomendaciones-pdf/';
-    });
+    if (downloadPdfButton) {
+        downloadPdfButton.addEventListener('click', function() {
+            window.location.href = '/download-recomendaciones-pdf/';
+        });
+    }
 
     fetchAppointmentData();
 });

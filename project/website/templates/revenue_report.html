@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Reporte de Ingresos - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/revenue_report.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <header>
+        <h1>Reporte de Ingresos</h1>
+        <p class="subtitle">Psic. Susana Dávila</p>
+        <p class="generation-date">Generado el: {% now "d/m/Y" %}</p>
+    </header>
+    
+    <main>
+        <div class="summary-card">
+            <h2>Resumen</h2>
+            <p>Total de ingresos: <span id="totalRevenue">${{ total_revenue|floatformat:2 }}</span></p>
+            <p>Total de citas: <span id="totalAppointments">{{ appointments|length }}</span></p>
+        </div>
+
+        <div class="table-container">
+            <table id="appointmentsTable">
+                <thead>
+                    <tr>
+                        <th data-sort="username">Cliente <span class="sort-icon">&#8597;</span></th>
+                        <th data-sort="date">Fecha <span class="sort-icon">&#8597;</span></th>
+                        <th data-sort="time">Hora <span class="sort-icon">&#8597;</span></th>
+                        <th data-sort="price">Ingreso <span class="sort-icon">&#8597;</span></th>
+                    </tr>
+                </thead>
+                <tbody id="appointmentsBody">
+                    {% for appointment in appointments %}
+                    <tr>
+                        <td>{{ appointment.user.username }}</td>
+                        <td>{{ appointment.availability.date|date:"d/m/Y" }}</td>
+                        <td>{{ appointment.availability.start_time|time:"H:i" }}</td>
+                        <td>${{ appointment.availability.price|floatformat:2 }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <footer>
+        <p>&copy; {% now "Y" %} Psic. Susana Dávila. Todos los derechos reservados.</p>
+    </footer>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/revenue_report.js' %}"></script>
+{% endblock %}

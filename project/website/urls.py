@@ -26,8 +26,17 @@ urlpatterns = [
     path('get-user-appointments/', views.get_user_appointments, name='get_user_appointments'),
     path('get-availabilities/', views.get_availabilities, name='get_availabilities'),
 
+    # recommendations urls:
     path('recomendaciones/', views.recomendaciones, name='recomendaciones'),
     path('get-user-appointment/', views.get_user_appointment, name='get_user_appointment'),
     path('download-recomendaciones-pdf/', views.download_recomendaciones_pdf, name='download_recomendaciones_pdf'),
+
+    # admin bulk delete 
+    path('bulk-delete-availabilities/', views.bulk_delete_availabilities, name='bulk_delete_availabilities'),
+    path('bulk-delete-appointments/', views.bulk_delete_appointments, name='bulk_delete_appointments'),
+
+    # revenue report
+    path('generate-revenue-report/', views.generate_revenue_report, name='generate_revenue_report'),
+    path('download-revenue-report/', views.download_revenue_report, name='download_revenue_report'),
 
 ]    

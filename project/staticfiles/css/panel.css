@@ -157,3 +157,75 @@ input[type="text"], input[type="url"] {
         flex-grow: 1;
     }
 }
+
+#availabilityList li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#availabilityList input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+#bulkDeleteButton {
+    margin-bottom: 15px;
+}
+
+#bulkDeleteForm {
+    margin-bottom: 15px;
+}
+
+.availability-list {
+    margin-top: 20px;
+}
+
+.availability-list h3 {
+    margin-bottom: 10px;
+}
+
+#availabilityList li {
+    background-color: #f8f9fa;
+    border: 1px solid #e9ecef;
+    border-radius: 4px;
+    padding: 10px;
+    margin-bottom: 10px;
+}
+
+#availabilityList li button {
+    margin-left: auto;
+}
+
+.btn-secondary {
+    background-color: var(--secondary-color);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+}
+
+.btn-secondary:hover {
+    background-color: var(--secondary-color-hover);
+}
+
+#bulkDeleteAppointmentsButton {
+    margin-bottom: 15px;
+}
+
+#appointmentsList li {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+#appointmentsList input[type="checkbox"] {
+    margin-right: 10px;
+}
+
+.google-meet-form {
+    display: flex;
+    gap: 10px;
+    margin-left: auto;
+}

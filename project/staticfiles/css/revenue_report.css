@@ -1,0 +1,140 @@
+/* revenue_report.css */
+
+.container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 20px;
+}
+
+header {
+    text-align: center;
+    margin-bottom: 30px;
+}
+
+h1 {
+    color: var(--primary-color);
+    margin-bottom: 10px;
+}
+
+.subtitle {
+    font-size: 1.2em;
+    color: var(--secondary-color);
+}
+
+.generation-date {
+    font-style: italic;
+    color: #666;
+}
+
+.summary-card {
+    background-color: var(--section-bg-color);
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    margin-bottom: 30px;
+}
+
+.summary-card h2 {
+    color: var(--primary-color);
+    margin-top: 0;
+}
+
+.table-container {
+    overflow-x: auto;
+}
+
+#appointmentsTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: var(--section-bg-color);
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+#appointmentsTable th,
+#appointmentsTable td {
+    padding: 12px;
+    text-align: left;
+    border-bottom: 1px solid #ddd;
+}
+
+#appointmentsTable th {
+    background-color: var(--primary-color);
+    color: white;
+    cursor: pointer;
+}
+
+#appointmentsTable th:hover {
+    background-color: var(--primary-color-hover);
+}
+
+#appointmentsTable tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.05);
+}
+
+.sort-icon {
+    font-size: 0.8em;
+    margin-left: 5px;
+}
+
+footer {
+    text-align: center;
+    margin-top: 30px;
+    padding: 20px 0;
+    border-top: 1px solid #ddd;
+}
+
+/* Responsive design */
+@media (max-width: 768px) {
+    .container {
+        padding: 10px;
+    }
+
+    #appointmentsTable {
+        font-size: 14px;
+    }
+
+    #appointmentsTable th,
+    #appointmentsTable td {
+        padding: 8px;
+    }
+}
+
+@media (max-width: 480px) {
+    h1 {
+        font-size: 1.5em;
+    }
+
+    .subtitle {
+        font-size: 1em;
+    }
+
+    #appointmentsTable {
+        font-size: 12px;
+    }
+
+    #appointmentsTable th,
+    #appointmentsTable td {
+        padding: 6px;
+    }
+}
+
+/* Sorting indicators */
+#appointmentsTable th.asc .sort-icon::after {
+    content: " ▲";
+}
+
+#appointmentsTable th.desc .sort-icon::after {
+    content: " ▼";
+}
+
+@media print {
+    body {
+        background-color: white;
+    }
+    .container {
+        box-shadow: none;
+    }
+    .btn { 
+        display: none; 
+    }
+}

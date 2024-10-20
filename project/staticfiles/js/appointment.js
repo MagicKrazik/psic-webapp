@@ -35,7 +35,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     data.forEach(availability => {
                         const option = document.createElement('option');
                         option.value = availability.id;
-                        option.textContent = `${formatDate(availability.date)} ${availability.start_time} - ${availability.end_time}`;
+                        const date = new Date(availability.date + 'T00:00:00');  // Create date object in local timezone
+                        const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(date);
+                        const formattedDate = formatDate(date);
+                        option.textContent = `${dayName}, ${formattedDate} ${availability.start_time} - ${availability.end_time}`;
                         availabilitySelect.appendChild(option);
                     });
                 }
@@ -47,6 +50,11 @@ document.addEventListener('DOMContentLoaded', function() {
             .finally(() => {
                 hideLoading();
             });
+    }
+    
+    function formatDate(date) {
+        const options = { year: 'numeric', month: 'long', day: 'numeric' };
+        return date.toLocaleDateString('es-ES', options);
     }
 
     // Book appointment
@@ -74,7 +82,12 @@ document.addEventListener('DOMContentLoaded', function() {
         })
         .then(data => {
             if (data.status === 'success') {
-                confirmedDate.textContent = formatDate(data.date);
+                const [day, month, year] = data.date.split('/');
+                const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
+                const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
+                const formattedDate = appointmentDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                
+                confirmedDate.textContent = `${dayName}, ${formattedDate}`;
                 confirmedTime.textContent = data.time;
                 appointmentConfirmation.style.display = 'block';
                 fetchAvailabilities();
@@ -101,7 +114,11 @@ document.addEventListener('DOMContentLoaded', function() {
                 userAppointmentsList.innerHTML = '';
                 data.forEach(appointment => {
                     const li = document.createElement('li');
-                    li.textContent = `${appointment.date} ${appointment.time}`;
+                    const [day, month, year] = appointment.date.split('/');
+                    const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
+                    const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
+                    const formattedDate = appointmentDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                    li.textContent = `${dayName}, ${formattedDate} ${appointment.time}`;
                     if (appointment.google_meet_link) {
                         const link = document.createElement('a');
                         link.href = appointment.google_meet_link;

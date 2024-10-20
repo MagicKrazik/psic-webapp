@@ -9,6 +9,7 @@
 {% endblock %}
 
 {% block content %}
+
 <div class="admin-panel">
     <h1>Panel de Administración</h1>
 
@@ -26,11 +27,11 @@
                         <label for="startTime">Hora de inicio:</label>
                         <input type="text" id="startTime" name="startTime" required>
                     </div>
-                    <p class="info-text">Todas las consultas tienen una duración de 1 hora.</p>
+                    <p>Todas las consultas tienen una duración de 1 hora.</p>
                     <button type="submit" class="btn-primary">Agregar Disponibilidad</button>
                 </form>
             </div>
-            
+
             <div class="recurring-availability">
                 <h3>Agregar Disponibilidad Recurrente</h3>
                 <form id="recurringAvailabilityForm">
@@ -56,14 +57,14 @@
                     </div>
                     <div class="form-group">
                         <label for="recurringStartTime">Hora de inicio:</label>
-                        <input type="text" id="recurringStartTime" name="startTime" required>
+                        <input type="text" id="recurringStartTime" name="recurringStartTime" required>
                     </div>
-                    <p class="info-text">Todas las consultas tienen una duración de 1 hora.</p>
+                    <p>Todas las consultas tienen una duración de 1 hora.</p>
                     <button type="submit" class="btn-primary">Agregar Disponibilidad Recurrente</button>
                 </form>
             </div>
         </div>
-        
+
         <div class="availability-list">
             <h3>Horarios Disponibles</h3>
             <ul id="availabilityList"></ul>
@@ -72,9 +73,13 @@
 
     <div class="panel-section">
         <h2>Citas Agendadas</h2>
+        <form id="bulkDeleteAppointmentsForm">
+            <button type="submit" class="btn-secondary" id="bulkDeleteAppointmentsButton">Eliminar citas seleccionadas</button>
+        </form>
         <ul id="appointmentsList">
             {% for appointment in appointments %}
             <li>
+                <input type="checkbox" name="bulk_delete_appointment" value="{{ appointment.id }}">
                 <strong>{{ appointment.user.username }}</strong> - 
                 {{ appointment.availability.date|date:"d/m/Y" }} 
                 {{ appointment.availability.start_time|time:"H:i" }}
@@ -84,7 +89,7 @@
                     <button class="btn-secondary record-payment" data-id="{{ appointment.id }}">Registrar Pago</button>
                 {% endif %}
                 <form class="google-meet-form" data-id="{{ appointment.id }}">
-                    <input type="url" name="google_meet_link" placeholder="Enlace de Google Meet" value="{{ appointment.google_meet_link|default_if_none:'' }}">
+                    <input type="url" name="google_meet_link" placeholder="Enlace de Google Meet" value="{{ appointment.google_meet_link|default:'' }}">
                     <button type="submit" class="btn-secondary">Actualizar enlace</button>
                 </form>
             </li>
@@ -96,10 +101,11 @@
         <h2>Resumen de Ingresos</h2>
         <div class="earnings-summary">
             <p>Total de ingresos: $<span id="totalEarnings">0</span></p>
-            <button id="generateReport" class="btn-primary">Generar Reporte</button>
+            <button id="generateReport" class="btn-primary">Generar Reporte de Ingresos</button>
         </div>
     </div>
 </div>
+
 {% endblock %}
 
 {% block extra_js %}

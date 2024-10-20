@@ -15,6 +15,7 @@ class Availability(models.Model):
     start_time = models.TimeField()
     end_time = models.TimeField()
     is_booked = models.BooleanField(default=False)
+    price = models.DecimalField(max_digits=6, decimal_places=2, default=400.00)  # Add this line
 
     def __str__(self):
         return f"{self.date} {self.start_time}-{self.end_time}"

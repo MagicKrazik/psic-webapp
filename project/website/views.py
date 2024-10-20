@@ -22,11 +22,17 @@ from django.template.loader import get_template
 from xhtml2pdf import pisa
 from io import BytesIO
 from django.core.mail import EmailMessage
+from django.utils.translation import gettext as _
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
+from django.db.models import Sum
+from django.utils import translation
+import logging
+from smtplib import SMTPException
 
 
 
-
-
+logger = logging.getLogger(__name__)
 
 def is_staff_or_superuser(user):
     return user.is_staff or user.is_superuser
@@ -198,6 +204,7 @@ def appointment(request):
     user_appointments = Appointment.objects.filter(user=request.user).order_by('availability__date', 'availability__start_time')
     return render(request, 'appointment.html', {'availabilities': availabilities, 'user_appointments': user_appointments})
 
+
 @login_required
 @require_http_methods(["POST"])
 def book_appointment(request):
@@ -213,28 +220,28 @@ def book_appointment(request):
             availability.is_booked = True
             availability.save()
 
-            # Attempt to send emails, but don't prevent booking if they fail
-            try:
-                email_sent = send_confirmation_email_to_user(appointment)
-                if not email_sent:
-                    print(f"Failed to send confirmation email for appointment {appointment.id}")
-            except Exception as e:
-                print(f"Error sending user confirmation email: {str(e)}")
+            user_email_sent = send_confirmation_email_to_user(appointment)
+            admin_email_sent = send_confirmation_email_to_admin(appointment)
 
-            try:
-                send_confirmation_email_to_admin(appointment)
-            except Exception as e:
-                print(f"Error sending admin notification email: {str(e)}")
+            email_status = []
+            if not user_email_sent:
+                email_status.append("Usuario")
+            if not admin_email_sent:
+                email_status.append("Administrador")
 
-            return JsonResponse({
+            response_data = {
                 'status': 'success',
                 'id': appointment.id,
-                'date': appointment.availability.date.strftime('%Y-%m-%d'),
+                'date': appointment.availability.date.strftime('%d/%m/%Y'),
                 'time': appointment.availability.start_time.strftime('%H:%M'),
                 'username': request.user.username
-            })
+            }
+
+            if email_status:
+                response_data['email_warning'] = f"No se pudo enviar el correo de confirmación a: {', '.join(email_status)}"
+
+            return JsonResponse(response_data)
         except Exception as e:
-            # If there's an error during the booking process, rollback the changes
             if 'appointment' in locals():
                 appointment.delete()
             if availability.is_booked:
@@ -243,7 +250,7 @@ def book_appointment(request):
             return JsonResponse({'status': 'error', 'message': f'Error al reservar la cita: {str(e)}'}, status=500)
     else:
         return JsonResponse({'status': 'error', 'message': 'Esta disponibilidad ya ha sido reservada'})
-    
+
 
 @login_required
 @user_passes_test(lambda u: u.is_staff)
@@ -265,8 +272,15 @@ def get_availabilities(request):
             date__gte=timezone.now().date(),
             is_booked=False
         ).order_by('date', 'start_time')
-        data = list(availabilities.values('id', 'date', 'start_time', 'end_time'))
-        return JsonResponse(data, safe=False, encoder=DjangoJSONEncoder)
+        data = []
+        for availability in availabilities:
+            data.append({
+                'id': availability.id,
+                'date': availability.date.strftime('%Y-%m-%d'),  # Format as string
+                'start_time': availability.start_time.strftime('%H:%M'),
+                'end_time': availability.end_time.strftime('%H:%M'),
+            })
+        return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
 
@@ -286,19 +300,15 @@ def generate_pdf(context):
 
 def send_confirmation_email_to_user(appointment):
     subject = 'Confirmación de Cita'
-    context = {
-        'username': appointment.user.username,
-        'date': appointment.availability.date,
-        'time': appointment.availability.start_time.strftime('%H:%M')
-    }
-
-    
+    with translation.override('es'):
+        day_name = _(appointment.availability.date.strftime('%A'))
     message = f"""
     Estimado/a {appointment.user.username},
 
-    Su cita ha sido confirmada para el {appointment.availability.date} a las {appointment.availability.start_time.strftime('%H:%M')}.
+    Su cita ha sido confirmada para el {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')} a las {appointment.availability.start_time.strftime('%H:%M')}.
 
-    Adjunto encontrará un PDF con recomendaciones importantes para su sesión.
+    Para ver las recomendaciones importantes para su sesión, por favor visite:
+    http://127.0.0.1:8000/recomendaciones/
 
     Gracias por agendar una cita con Psic. Susana Dávila.
 
@@ -308,47 +318,53 @@ def send_confirmation_email_to_user(appointment):
     """
     
     try:
-        pdf_content = generate_pdf(context)
-        if pdf_content:
-            email = EmailMessage(
-                subject,
-                message,
-                settings.DEFAULT_FROM_EMAIL,
-                [appointment.user.email]
-            )
-            email.attach('recomendaciones.pdf', pdf_content, 'application/pdf')
-            email.send(fail_silently=False)
-            return True
-        else:
-            raise Exception("Failed to generate PDF")
-    except socket.error as e:
-        print(f"Socket error when sending email: {str(e)}")
-        return False
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [appointment.user.email],
+            fail_silently=False,
+        )
+        logger.info(f"Confirmation email sent to user {appointment.user.email}")
+        return True
+    except SMTPException as e:
+        logger.error(f"SMTP error sending email to user {appointment.user.email}: {str(e)}")
     except Exception as e:
-        print(f"Unexpected error when sending email: {str(e)}")
-        return False
-
+        logger.error(f"Unexpected error sending email to user {appointment.user.email}: {str(e)}")
+    return False
 
 def send_confirmation_email_to_admin(appointment):
     admin_email = CustomUser.objects.filter(is_staff=True).first().email
     subject = 'Nueva Cita Agendada'
+    with translation.override('es'):
+        day_name = _(appointment.availability.date.strftime('%A'))
 
     message = f"""
     Se ha agendado una nueva cita:
 
     Usuario: {appointment.user.username}
-    Fecha: {appointment.availability.date}
-    Hora: {appointment.availability.start_time}
+    Fecha: {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')}
+    Hora: {appointment.availability.start_time.strftime('%H:%M')}
 
     Por favor, actualice el enlace de Google Meet para esta cita.
 
     Saludos cordiales,
-    
     """
     try:
-        send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email])
+        send_mail(
+            subject,
+            message,
+            settings.DEFAULT_FROM_EMAIL,
+            [admin_email],
+            fail_silently=False,
+        )
+        logger.info(f"Confirmation email sent to admin {admin_email}")
+        return True
+    except SMTPException as e:
+        logger.error(f"SMTP error sending email to admin {admin_email}: {str(e)}")
     except Exception as e:
-        print(f"Failed to send admin confirmation email: {str(e)}")
+        logger.error(f"Unexpected error sending email to admin {admin_email}: {str(e)}")
+    return False
 
 
 
@@ -419,3 +435,71 @@ def download_recomendaciones_pdf(request):
         response['Content-Disposition'] = 'attachment; filename="Recomendaciones_Psic_Susana_Davila.pdf"'
         return response
     return HttpResponse('Error generating PDF', status=500)
+
+
+### Bulk delete view for the admin panel, to delete multiple appointment dates
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+@require_http_methods(["POST"])
+def bulk_delete_availabilities(request):
+    try:
+        data = json.loads(request.body)
+        ids = data.get('ids', [])
+        deleted_count = Availability.objects.filter(id__in=ids, is_booked=False).delete()[0]
+        return JsonResponse({'status': 'success', 'deleted_count': deleted_count})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+
+
+### Bulk delete appointmens views
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+@require_http_methods(["POST"])
+def bulk_delete_appointments(request):
+    try:
+        data = json.loads(request.body)
+        ids = data.get('ids', [])
+        deleted_count = Appointment.objects.filter(id__in=ids).delete()[0]
+        return JsonResponse({'status': 'success', 'deleted_count': deleted_count})
+    except Exception as e:
+        return JsonResponse({'status': 'error', 'message': str(e)}, status=400)
+    
+
+### Revenue report views:
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+def generate_revenue_report(request):
+    appointments = Appointment.objects.filter(is_paid=True).order_by('-availability__date')
+    total_revenue = appointments.aggregate(Sum('availability__price'))['availability__price__sum'] or 0
+
+    appointments_data = [
+        {
+            'user': appointment.user.username,
+            'date': appointment.availability.date.strftime('%d/%m/%Y'),
+            'time': appointment.availability.start_time.strftime('%H:%M'),
+            'price': float(appointment.availability.price)
+        } for appointment in appointments
+    ]
+
+    context = {
+        'appointments': appointments_data,
+        'total_revenue': float(total_revenue),
+        'generated_at': timezone.now().strftime('%d/%m/%Y')  # Only include the date
+    }
+
+    return JsonResponse({'status': 'success', 'data': context})
+
+@login_required
+@user_passes_test(is_staff_or_superuser)
+def download_revenue_report(request):
+    html_string = request.GET.get('html', '')
+    
+    response = HttpResponse(content_type='text/html')
+    response['Content-Disposition'] = 'attachment; filename="revenue_report.html"'
+    response.write(html_string)
+    
+    return response    

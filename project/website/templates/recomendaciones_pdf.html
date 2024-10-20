@@ -32,7 +32,7 @@
     <h1>Recomendaciones para su Cita</h1>
     
     <div class="welcome-message">
-        <p>Hola {{ username }},</p>
+        <p>Hola {{ username|upper }},</p>
         {% if date and time %}
         <p>Gracias por agendar su cita para el <strong>{{ date }}</strong> a las <strong>{{ time }}</strong>.</p>
         {% endif %}
