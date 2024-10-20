@@ -28,7 +28,7 @@
                     <a href="{% url 'home' %}">Home</a>
                     <a href="{% url 'about_me' %}">Sobre mí</a>
                     <a href="{% url 'services' %}">Servicios</a>
-                    <a href="{% url 'appointment' %}">Agendar cita</a>
+                    <a href="{% url 'appointment' %}">Citas</a>
                     <a href="{% url 'contact' %}">Contacto</a>
                     {% if user.is_staff or user.is_staff %}
                         <a href="{% url 'admin_panel' %}">Panel Admin</a>

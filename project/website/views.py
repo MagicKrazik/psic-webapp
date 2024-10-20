@@ -213,16 +213,18 @@ def book_appointment(request):
             availability.is_booked = True
             availability.save()
 
-            email_sent = send_confirmation_email_to_user(appointment)
-            if not email_sent:
-                # Log the email sending failure, but don't prevent booking
-                print(f"Failed to send confirmation email for appointment {appointment.id}")
+            # Attempt to send emails, but don't prevent booking if they fail
+            try:
+                email_sent = send_confirmation_email_to_user(appointment)
+                if not email_sent:
+                    print(f"Failed to send confirmation email for appointment {appointment.id}")
+            except Exception as e:
+                print(f"Error sending user confirmation email: {str(e)}")
 
             try:
                 send_confirmation_email_to_admin(appointment)
             except Exception as e:
-                # Log the admin email sending failure, but don't prevent booking
-                print(f"Failed to send admin notification for appointment {appointment.id}: {str(e)}")
+                print(f"Error sending admin notification email: {str(e)}")
 
             return JsonResponse({
                 'status': 'success',
@@ -241,7 +243,6 @@ def book_appointment(request):
             return JsonResponse({'status': 'error', 'message': f'Error al reservar la cita: {str(e)}'}, status=500)
     else:
         return JsonResponse({'status': 'error', 'message': 'Esta disponibilidad ya ha sido reservada'})
-
     
 
 @login_required
@@ -281,6 +282,8 @@ def generate_pdf(context):
         return result.getvalue()
     return None
 
+
+
 def send_confirmation_email_to_user(appointment):
     subject = 'Confirmación de Cita'
     context = {
@@ -288,6 +291,7 @@ def send_confirmation_email_to_user(appointment):
         'date': appointment.availability.date,
         'time': appointment.availability.start_time.strftime('%H:%M')
     }
+
     
     message = f"""
     Estimado/a {appointment.user.username},
@@ -299,6 +303,7 @@ def send_confirmation_email_to_user(appointment):
     Gracias por agendar una cita con Psic. Susana Dávila.
 
     Saludos cordiales,
+    
     Equipo de Psic. Susana Dávila
     """
     
@@ -316,14 +321,18 @@ def send_confirmation_email_to_user(appointment):
             return True
         else:
             raise Exception("Failed to generate PDF")
+    except socket.error as e:
+        print(f"Socket error when sending email: {str(e)}")
+        return False
     except Exception as e:
-        print(f"Failed to send user confirmation email: {str(e)}")
+        print(f"Unexpected error when sending email: {str(e)}")
         return False
 
 
 def send_confirmation_email_to_admin(appointment):
     admin_email = CustomUser.objects.filter(is_staff=True).first().email
     subject = 'Nueva Cita Agendada'
+
     message = f"""
     Se ha agendado una nueva cita:
 
@@ -334,7 +343,7 @@ def send_confirmation_email_to_admin(appointment):
     Por favor, actualice el enlace de Google Meet para esta cita.
 
     Saludos cordiales,
-    Sistema de Citas
+    
     """
     try:
         send_mail(subject, message, settings.DEFAULT_FROM_EMAIL, [admin_email])
@@ -371,7 +380,7 @@ def get_user_appointment(request):
         data = {
             'status': 'success',
             'username': request.user.username,
-            'date': appointment.availability.date.strftime('%Y-%m-%d'),
+            'date': appointment.availability.date.strftime('%d/%m/%Y'),
             'time': appointment.availability.start_time.strftime('%H:%M')
         }
     except Appointment.DoesNotExist:
@@ -407,6 +416,6 @@ def download_recomendaciones_pdf(request):
     pdf_content = generate_pdf(context)
     if pdf_content:
         response = HttpResponse(pdf_content, content_type='application/pdf')
-        response['Content-Disposition'] = 'attachment; filename="recomendaciones.pdf"'
+        response['Content-Disposition'] = 'attachment; filename="Recomendaciones_Psic_Susana_Davila.pdf"'
         return response
     return HttpResponse('Error generating PDF', status=500)
