@@ -1,0 +1,65 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}Aviso de Privacidad - Psic. Susana Dávila{% endblock %}
+
+{% block extra_css %}
+<link rel="stylesheet" href="{% static 'css/aviso_priv.css' %}">
+{% endblock %}
+
+{% block content %}
+<div class="privacy-container">
+    <h1>Aviso de Privacidad</h1>
+    
+    <section id="introduction">
+        <h2>Introducción</h2>
+        <p><strong>Psic. Susana Dávila, con domicilio en Av. del Imán 121, Torres del Maurel, Pedregal de Carrasco, Coyoacán 04530</strong>, está comprometida con la protección de sus datos personales, al ser responsable de su uso, manejo y confidencialidad. Al respecto le informamos lo siguiente:</p>
+    </section>
+
+    <section id="collected-data">
+        <h2>Datos personales que recabamos</h2>
+        <p>Para las finalidades señaladas en el presente aviso de privacidad, podemos recabar sus datos personales de distintas formas:</p>
+        <ul>
+            <li>Nombre de usuario</li>
+            <li>Edad</li>
+            <li>Dirección de correo electrónico</li>
+            <li>Número de teléfono</li>
+        </ul>
+    </section>
+
+    <section id="purpose">
+        <h2>Finalidad del tratamiento de datos personales</h2>
+        <p>Sus datos personales serán utilizados para las siguientes finalidades:</p>
+        <ul>
+            <li><strong>Proveer los servicios de terapia psicológica que ha solicitado</strong></li>
+            <li><strong>Notificarle sobre nuevos servicios o cambios en los mismos</strong></li>
+            <li><strong>Elaborar estudios y programas que son necesarios para determinar hábitos de uso</strong></li>
+            <li><strong>Ofrecerle nuevos productos y servicios a la medida de sus intereses y necesidades</strong></li>
+            <li><strong>Realizar evaluaciones periódicas de nuestros servicios a efecto de mejorar la calidad de los mismos</strong></li>
+        </ul>
+    </section>
+
+    <section id="rights">
+        <h2>Derechos ARCO</h2>
+        <p>Usted tiene derecho a conocer qué datos personales tenemos de usted, para qué los utilizamos y las condiciones del uso que les damos (Acceso). Asimismo, es su derecho solicitar la corrección de su información personal en caso de que esté desactualizada, sea inexacta o incompleta (Rectificación); que la eliminemos de nuestros registros o bases de datos cuando considere que la misma no está siendo utilizada conforme a los principios, deberes y obligaciones previstas en la normativa (Cancelación); así como oponerse al uso de sus datos personales para fines específicos (Oposición). Estos derechos se conocen como derechos ARCO.</p>
+    </section>
+
+    <section id="contact">
+        <h2>Contacto</h2>
+        <p>Para el ejercicio de cualquiera de los derechos ARCO, usted deberá presentar la solicitud respectiva a través del siguiente medio:</p>
+        <p>Correo electrónico: <a href="mailto:psic.susidm@gmail.com">psic.susidm@gmail.com</a></p>
+    </section>
+
+    <section id="changes">
+        <h2>Cambios al aviso de privacidad</h2>
+        <p>Nos reservamos el derecho de efectuar en cualquier momento modificaciones o actualizaciones al presente aviso de privacidad, para la atención de novedades legislativas o jurisprudenciales, políticas internas, nuevos requerimientos para la prestación u ofrecimiento de nuestros servicios o productos y prácticas del mercado.</p>
+        <p>Estas modificaciones estarán disponibles al público a través de nuestra página de Internet <a href="https://www.example.com">www.example.com</a></p>
+    </section>
+
+    <p class="date">Fecha de última actualización: <span id="last-updated"></span></p>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script src="{% static 'js/aviso_priv.js' %}"></script>
+{% endblock %}

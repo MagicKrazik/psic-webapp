@@ -101,14 +101,14 @@ body {
 }
 
 .dive-link {
-    color: var(--secondary-color);
+    color: #FF69B4;
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s ease;
 }
 
 .dive-link:hover {
-    color: var(--accent-color);
+    color: #FF69B4;
 }
 
 /* Main content area */
@@ -228,3 +228,11 @@ body {
         margin-top: 55px;
     }
 }
+
+.aviso-priv-link {
+    color: #FF69B4;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+

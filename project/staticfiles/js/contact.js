@@ -22,13 +22,28 @@ document.addEventListener('DOMContentLoaded', function() {
             return;
         }
 
-        // If validation passes, you can submit the form to your backend
-        // For this example, we'll just log the data and show a success message
-        console.log('Form submitted:', { name, email, subject, message });
-        showMessage('¡Mensaje enviado con éxito! Gracias por contactarnos.', 'success');
-
-        // Clear the form
-        contactForm.reset();
+        // Send data to the server
+        fetch('/send-contact-email/', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': getCookie('csrftoken')
+            },
+            body: JSON.stringify({ name, email, subject, message })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.status === 'success') {
+                showMessage('¡Mensaje enviado con éxito! Gracias por contactarnos.', 'success');
+                contactForm.reset();
+            } else {
+                showMessage('Hubo un problema al enviar el mensaje. Por favor, inténtelo de nuevo.', 'error');
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            showMessage('Hubo un problema al enviar el mensaje. Por favor, inténtelo de nuevo.', 'error');
+        });
     });
 
     function isValidEmail(email) {
@@ -46,5 +61,20 @@ document.addEventListener('DOMContentLoaded', function() {
         setTimeout(() => {
             messageContainer.remove();
         }, 5000);
+    }
+
+    function getCookie(name) {
+        let cookieValue = null;
+        if (document.cookie && document.cookie !== '') {
+            const cookies = document.cookie.split(';');
+            for (let i = 0; i < cookies.length; i++) {
+                const cookie = cookies[i].trim();
+                if (cookie.substring(0, name.length + 1) === (name + '=')) {
+                    cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                    break;
+                }
+            }
+        }
+        return cookieValue;
     }
 });

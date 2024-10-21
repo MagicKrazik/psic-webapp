@@ -3,6 +3,8 @@ from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
 from django.conf.urls import handler403
+from .views import CustomPasswordResetView, CustomPasswordResetDoneView, CustomPasswordResetConfirmView, CustomPasswordResetCompleteView
+
 
 handler403 = 'your_app.views.custom_permission_denied_view'
 
@@ -38,5 +40,17 @@ urlpatterns = [
     # revenue report
     path('generate-revenue-report/', views.generate_revenue_report, name='generate_revenue_report'),
     path('download-revenue-report/', views.download_revenue_report, name='download_revenue_report'),
+
+    # Contact email
+    path('send-contact-email/', views.send_contact_email, name='send_contact_email'),
+
+    # password reset views
+    path('password-reset/', CustomPasswordResetView.as_view(), name='password_reset'),
+    path('password-reset/done/', CustomPasswordResetDoneView.as_view(), name='password_reset_done'),
+    path('password-reset-confirm/<uidb64>/<token>/', CustomPasswordResetConfirmView.as_view(), name='password_reset_confirm'),
+    path('password-reset-complete/', CustomPasswordResetCompleteView.as_view(), name='password_reset_complete'),
+
+    # aviso priv
+    path('aviso-priv/', views.avisopriv, name='aviso-priv'),
 
 ]    

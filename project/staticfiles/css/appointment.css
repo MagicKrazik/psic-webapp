@@ -6,9 +6,10 @@ body {
 }
 
 .appointment-container {
-    max-width: 800px;
+    max-width: 1200px;
     margin: 0 auto;
-    padding: 20px;
+    padding: 2rem;
+    padding-top: 0.2rem;
 }
 
 h1, h2 {

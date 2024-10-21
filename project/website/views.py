@@ -30,6 +30,9 @@ from django.utils import translation
 import logging
 from smtplib import SMTPException
 
+# password reset views:
+from django.contrib.auth.views import PasswordResetView, PasswordResetDoneView, PasswordResetConfirmView, PasswordResetCompleteView
+from django.urls import reverse_lazy
 
 
 logger = logging.getLogger(__name__)
@@ -41,6 +44,10 @@ def is_staff_or_superuser(user):
 # Home view
 def home(request):
     return render(request, 'home.html')
+
+# Home view
+def avisopriv(request):
+    return render(request, 'aviso_priv.html')
 
 def register(request):
     if request.method == 'POST':
@@ -503,3 +510,52 @@ def download_revenue_report(request):
     response.write(html_string)
     
     return response    
+
+
+### Contact email:
+
+@require_http_methods(["POST"])
+def send_contact_email(request):
+    try:
+        data = json.loads(request.body)
+        name = data['name']
+        email = data['email']
+        subject = data['subject']
+        message = data['message']
+
+        # Compose email
+        email_subject = f"Nuevo mensaje de contacto: {subject}"
+        email_message = f"Nombre: {name}\nEmail: {email}\n\nMensaje:\n{message}"
+
+        # Send email
+        send_mail(
+            email_subject,
+            email_message,
+            settings.DEFAULT_FROM_EMAIL,
+            [settings.ADMIN_EMAIL],  # Make sure to set ADMIN_EMAIL in your settings.py
+            fail_silently=False,
+        )
+
+        return JsonResponse({'status': 'success'})
+    except Exception as e:
+        print(f"Error sending contact email: {str(e)}")
+        return JsonResponse({'status': 'error'}, status=500)
+    
+
+### password reset views:
+
+class CustomPasswordResetView(PasswordResetView):
+    template_name = 'password_reset_form.html'
+    email_template_name = 'password_reset_email.html'
+    subject_template_name = 'password_reset_subject.txt'
+    success_url = reverse_lazy('password_reset_done')
+
+class CustomPasswordResetDoneView(PasswordResetDoneView):
+    template_name = 'password_reset_done.html'
+
+class CustomPasswordResetConfirmView(PasswordResetConfirmView):
+    template_name = 'password_reset_confirm.html'
+    success_url = reverse_lazy('password_reset_complete')
+
+class CustomPasswordResetCompleteView(PasswordResetCompleteView):
+    template_name = 'password_reset_complete.html'    

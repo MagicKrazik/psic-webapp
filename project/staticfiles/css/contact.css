@@ -2,8 +2,8 @@
 .contact-container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 0rem;
-    padding-bottom: 1rem;
+    padding: 2rem;
+    padding-top: 0.2rem;
 }
 
 h1 {
@@ -97,6 +97,13 @@ textarea {
     border: 1px solid #ccc;
     border-radius: 4px;
     font-size: 1rem;
+    transition: border-color 0.3s ease;
+}
+
+input:focus,
+textarea:focus {
+    outline: none;
+    border-color: var(--primary-color);
 }
 
 textarea {
@@ -122,6 +129,25 @@ textarea {
     transform: translateY(-2px);
 }
 
+.message {
+    padding: 1rem;
+    margin-bottom: 1rem;
+    border-radius: 4px;
+    font-weight: 500;
+}
+
+.message.success {
+    background-color: #d4edda;
+    color: #155724;
+    border: 1px solid #c3e6cb;
+}
+
+.message.error {
+    background-color: #f8d7da;
+    color: #721c24;
+    border: 1px solid #f5c6cb;
+}
+
 /* Media Queries for Responsiveness */
 @media screen and (max-width: 768px) {
     .contact-container {
@@ -130,11 +156,6 @@ textarea {
 
     .contact-content {
         flex-direction: column;
-    }
-
-    .contact-info,
-    .contact-form {
-        width: 100%;
     }
 
     h1 {

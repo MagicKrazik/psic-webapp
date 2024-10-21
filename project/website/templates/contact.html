@@ -5,6 +5,7 @@
 
 {% block extra_css %}
 <link rel="stylesheet" href="{% static 'css/contact.css' %}">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,7 @@
         <div class="contact-info section">
             <h2>Información de Contacto</h2>
             <ul>
-                <li><i class="fas fa-envelope"></i> susi_93_mtz@hotmail.com</li>
+                <li><i class="fas fa-envelope"></i> psic.susidm@gmail.com</li>
                 <li><i class="fas fa-phone"></i> (+55) 624 243 3110</li>
                 <li><i class="fas fa-id-card"></i> Ced.Prof.13420346</li>
             </ul>
@@ -42,7 +43,7 @@
                     <label for="message">Mensaje</label>
                     <textarea id="message" name="message" required></textarea>
                 </div>
-                <button type="submit" class="submit-btn cta-button">Enviar mensaje</button>
+                <button type="submit" class="submit-btn">Enviar mensaje</button>
             </form>
         </div>
     </div>
@@ -50,6 +51,5 @@
 {% endblock %}
 
 {% block extra_js %}
-<script src="https://kit.fontawesome.com/your-fontawesome-kit.js" crossorigin="anonymous"></script>
 <script src="{% static 'js/contact.js' %}"></script>
 {% endblock %}
