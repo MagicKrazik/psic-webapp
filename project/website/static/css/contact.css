@@ -1,4 +1,14 @@
 /* contact.css */
+:root {
+    --primary-color: #2A044A;
+    --secondary-color: #FF69B4;
+    --text-color: #333333;
+    --background-color: #D3D3D3;
+    --section-bg-color: #F5F5F5;
+    --accent-color: #9A0372;
+}
+
+
 .contact-container {
     max-width: 1200px;
     margin: 0 auto;
@@ -63,11 +73,8 @@ h2 {
     color: var(--primary-color);
 }
 
-.social-links {
+.social-icon {
     margin-top: 1.5rem;
-}
-
-.social-links a {
     display: inline-block;
     margin-right: 1rem;
     color: var(--primary-color);
@@ -76,7 +83,7 @@ h2 {
     font-weight: 500;
 }
 
-.social-links a:hover {
+.social-icon:hover {
     color: var(--secondary-color);
 }
 

@@ -315,7 +315,8 @@ def send_confirmation_email_to_user(appointment):
     Su cita ha sido confirmada para el {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')} a las {appointment.availability.start_time.strftime('%H:%M')}.
 
     Para ver las recomendaciones importantes para su sesión, por favor visite:
-    http://127.0.0.1:8000/recomendaciones/
+    
+    http://www.dive.it.com
 
     Gracias por agendar una cita con Psic. Susana Dávila.
 

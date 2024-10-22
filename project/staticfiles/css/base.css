@@ -5,7 +5,7 @@
     --text-color: #333333;
     --background-color: #D3D3D3;
     --section-bg-color: #F5F5F5;
-    --accent-color: #FF7043;
+    --accent-color: #9A0372;
 }
 
 body {
@@ -49,7 +49,7 @@ body {
 }
 
 .logo {
-    max-height: 40px;
+    max-height: 50px;
 }
 
 .navbar-right {
@@ -101,14 +101,14 @@ body {
 }
 
 .dive-link {
-    color: #FF69B4;
+    color: var(--secondary-color);
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s ease;
 }
 
 .dive-link:hover {
-    color: #FF69B4;
+    color: var(--accent-color);
 }
 
 /* Main content area */
@@ -230,9 +230,12 @@ body {
 }
 
 .aviso-priv-link {
-    color: #FF69B4;
+    color: var(--secondary-color);
     text-decoration: none;
     font-weight: bold;
     transition: color 0.3s ease;
 }
 
+.aviso-priv-link:hover {
+    color: var(--accent-color);
+}

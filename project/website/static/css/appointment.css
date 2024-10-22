@@ -1,3 +1,12 @@
+:root {
+    --primary-color: #2A044A;
+    --secondary-color: #FF69B4;
+    --text-color: #333333;
+    --background-color: #F0F0F0;
+    --section-bg-color: #FFFFFF;
+    --accent-color: #9A0372;
+}
+
 body {
     font-family: 'Arial', sans-serif;
     line-height: 1.6;
@@ -29,7 +38,7 @@ h1 {
     box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
-select, button {
+select, .appointment-button {
     width: 100%;
     padding: 12px;
     margin-bottom: 15px;
@@ -38,16 +47,16 @@ select, button {
     font-size: 16px;
 }
 
-button {
-    background-color: var(--secondary-color);
+.appointment-button {
+    background-color: var(--primary-color);
     color: white;
     border: none;
     cursor: pointer;
     transition: background-color 0.3s ease;
 }
 
-button:hover {
-    background-color: #FF7043;
+.appointment-button:hover {
+    background-color: var(--secondary-color);
 }
 
 .loading {

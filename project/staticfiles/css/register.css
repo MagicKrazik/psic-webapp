@@ -1,3 +1,14 @@
+:root {
+    --primary-color: #2A044A;
+    --secondary-color: #FF69B4;
+    --text-color: #333333;
+    --background-color: #F0F0F0;
+    --section-bg-color: #FFFFFF;
+    --accent-color: #9A0372;
+    --error-color: #D32F2F;
+    --success-color: #388E3C;
+}
+
 .register-container {
     max-width: 500px;
     margin: 2rem auto;
@@ -65,13 +76,14 @@
     margin-top: 1rem;
 }
 
-.login-link a {
+.login-link-hover {
     color: var(--primary-color);
     text-decoration: none;
 }
 
-.login-link a:hover {
+.login-link-hover:hover {
     text-decoration: underline;
+    color: var(--secondary-color)
 }
 
 @media screen and (max-width: 768px) {

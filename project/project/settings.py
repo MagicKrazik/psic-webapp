@@ -152,7 +152,7 @@ EMAIL_HOST_USER = 'psic.susidm@gmail.com'  # Your Gmail address
 EMAIL_HOST_PASSWORD = 'tgtp bphs ukhr lkkh'
 DEFAULT_FROM_EMAIL = 'psic.susidm@gmail.com'
 
-ADMIN_EMAIL = 'carlos.horacio.olivares@gmail.com'  # Replace with the actual admin email address
+ADMIN_EMAIL = 'psic.susidm@gmail.com'  # Replace with the actual admin email address
 
 
 #### for debug process we will use this code:
