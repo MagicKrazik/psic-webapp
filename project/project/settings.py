@@ -9,7 +9,7 @@ https://docs.djangoproject.com/en/5.1/topics/settings/
 For the full list of settings and their values, see
 https://docs.djangoproject.com/en/5.1/ref/settings/
 """
-import os 
+import os
 from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
@@ -20,7 +20,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.1/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = ''
+SECRET_KEY = 'django-insecure-157hdxae8%2%6=)7aypglu6ym8rkol6p+h#-^28!c7l6&7+78m'
 
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
@@ -131,7 +131,7 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # Login - config
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
-LOGOUT_REDIRECT_URL = 'login' 
+LOGOUT_REDIRECT_URL = 'login'
 
 AUTH_USER_MODEL = 'website.CustomUser'
 
@@ -149,21 +149,8 @@ EMAIL_HOST = 'smtp.gmail.com'
 EMAIL_PORT = 587
 EMAIL_USE_TLS = True
 EMAIL_HOST_USER = 'psic.susidm@gmail.com'  # Your Gmail address
-EMAIL_HOST_PASSWORD = ''
+EMAIL_HOST_PASSWORD = 'tgtp bphs ukhr lkkh'
 DEFAULT_FROM_EMAIL = 'psic.susidm@gmail.com'
 
 ADMIN_EMAIL = 'psic.susidm@gmail.com'  # Replace with the actual admin email address
-
-
-#### for debug process we will use this code:
-
-# Email settings
-#EMAIL_BACKEND = 'django.core.mail.backends.console.EmailBackend'  # For development
-# EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'  # For production
-#EMAIL_HOST = 'your_smtp_host'
-#EMAIL_PORT = 587
-#EMAIL_USE_TLS = True
-#EMAIL_HOST_USER = 'your_email@example.com'
-#EMAIL_HOST_PASSWORD = 'your_email_password'
-#DEFAULT_FROM_EMAIL = 'Psic. Susana Dávila <noreply@example.com>'
 

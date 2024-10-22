@@ -67,7 +67,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('home')  # Redirect to home page after successful login
+            return redirect('about_me')  # Redirect to home page after successful login
         else:
             messages.error(request, 'Usuario o contraseña inválidos')
     return render(request, 'login.html')
@@ -324,28 +324,26 @@ def send_confirmation_email_to_user(appointment):
     message = f"""
     Estimado/a {appointment.user.username},
 
-    Su cita ha sido confirmada para el {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')} a las {appointment.availability.start_time.strftime('%H:%M')}.
+    Tu cita ha sido confirmada para el {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')} a las {appointment.availability.start_time.strftime('%H:%M')}.
 
-    Para confirmar su cita, puede realizar el pago mediante cualquiera de estas opciones:
+    Para confirmar tu cita, puedes realizar el pago mediante cualquiera de estas opciones:
 
     📱 Transferencia bancaria
 
     Banco: BBVA
     Clave Interbancaria: 012 180 015 021 800 548
     Beneficiario: Susana Dávila 
-    Incluir como referencia: [Usuario o Nombre del cliente]
+    Incluir como referencia: [Nombre completo]
 
     💰 Depósito en ventanilla
 
-    Puede realizar su depósito en cualquier sucursal bancaria
+    Puedes realizar tu depósito en cualquier sucursal bancaria
     Clave Interbancaria: 012 180 015 021 800 548
     Beneficiario: Susana Dávila 
-    Es indispensable incluir como referencia: [Usuario o Nombre del cliente]
+    Es indispensable incluir como referencia: [Nombre completo]
 
-    ⚠️ Importante: Para garantizar el registro correcto de su pago, es esencial incluir su nombre como referencia en cualquier método de pago que elija.
-    Una vez realizado el pago, por favor envíe su comprobante a psic.susidm@gmail.com o al whatsapp (+55) 624 243 3110 para confirmar su cita.
-
-    Gracias por agendar una cita con Psic. Susana Dávila.
+    ⚠️ Importante: Para garantizar el registro correcto de tu pago, es esencial incluir tu nombre completo como referencia en cualquier método de pago que elijas.
+    Una vez realizado el pago, por favor envía tu comprobante a psic.susidm@gmail.com o al whatsapp (+55) 624 243 3110 para confirmar tu cita.
 
     Saludos cordiales,
     
@@ -375,16 +373,19 @@ def send_confirmation_email_to_admin(appointment):
         day_name = _(appointment.availability.date.strftime('%A'))
 
     message = f"""
-    Se ha agendado una nueva cita:
+
+    Se ha agendado una nueva cita SuperSusy:
 
     Usuario: {appointment.user.username}
     Nombre: {appointment.user.name}
     Fecha: {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')}
     Hora: {appointment.availability.start_time.strftime('%H:%M')}
 
-    Por favor, actualice el enlace de Google Meet para esta cita.
+    Por favor, actualiza el enlace de Google Meet para esta cita.
 
     Saludos cordiales,
+    KRAZIK
+
     """
     try:
         send_mail(
