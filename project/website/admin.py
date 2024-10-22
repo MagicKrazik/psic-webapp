@@ -4,12 +4,12 @@ from .models import CustomUser, Appointment
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
-    list_display = ('username', 'email', 'phone', 'age', 'location', 'is_staff')
+    list_display = ('username', 'name', 'email', 'phone', 'age', 'location', 'is_staff')
     fieldsets = UserAdmin.fieldsets + (
-        ('Additional Info', {'fields': ('phone', 'age', 'location')}),
+        ('Additional Info', {'fields': ('name','phone', 'age', 'location')}),
     )
     add_fieldsets = UserAdmin.add_fieldsets + (
-        ('Additional Info', {'fields': ('phone', 'age', 'location')}),
+        ('Additional Info', {'fields': ('name','phone', 'age', 'location')}),
     )
 
 admin.site.register(CustomUser, CustomUserAdmin)

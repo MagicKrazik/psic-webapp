@@ -5,6 +5,7 @@ from django.utils.translation import gettext_lazy as _
 from django.core.validators import MinValueValidator
 
 class CustomUserCreationForm(UserCreationForm):
+    name = forms.CharField(required=True, label="Nombre completo")
     email = forms.EmailField(required=True, label="Correo electrónico")
     age = forms.IntegerField(
         validators=[MinValueValidator(1)],
@@ -14,7 +15,7 @@ class CustomUserCreationForm(UserCreationForm):
     
     class Meta:
         model = CustomUser
-        fields = ("username", "email", "phone", "age", "location", "password1", "password2")
+        fields = ("username", "name", "email", "phone", "age", "location", "password1", "password2")
         labels = {
             'username': _('Usuario'),
             'phone': _('Teléfono'),

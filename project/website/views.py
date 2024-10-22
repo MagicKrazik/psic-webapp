@@ -275,18 +275,30 @@ def update_google_meet_link(request, appointment_id):
 @require_http_methods(["GET"])
 def get_availabilities(request):
     try:
+        # Get current time and add 24 hours
+        min_datetime = timezone.now() + timedelta(hours=24)
+        
+        # Get available slots
         availabilities = Availability.objects.filter(
-            date__gte=timezone.now().date(),
             is_booked=False
         ).order_by('date', 'start_time')
+        
         data = []
         for availability in availabilities:
-            data.append({
-                'id': availability.id,
-                'date': availability.date.strftime('%Y-%m-%d'),  # Format as string
-                'start_time': availability.start_time.strftime('%H:%M'),
-                'end_time': availability.end_time.strftime('%H:%M'),
-            })
+            # Combine date and start_time to create a datetime object for comparison
+            appointment_datetime = timezone.make_aware(
+                datetime.combine(availability.date, availability.start_time)
+            )
+            
+            # Only include appointments that are more than 24 hours in advance
+            if appointment_datetime >= min_datetime:
+                data.append({
+                    'id': availability.id,
+                    'date': availability.date.strftime('%Y-%m-%d'),
+                    'start_time': availability.start_time.strftime('%H:%M'),
+                    'end_time': availability.end_time.strftime('%H:%M'),
+                })
+        
         return JsonResponse(data, safe=False)
     except Exception as e:
         return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
@@ -314,15 +326,30 @@ def send_confirmation_email_to_user(appointment):
 
     Su cita ha sido confirmada para el {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')} a las {appointment.availability.start_time.strftime('%H:%M')}.
 
-    Para ver las recomendaciones importantes para su sesión, por favor visite:
-    
-    http://www.dive.it.com
+    Para confirmar su cita, puede realizar el pago mediante cualquiera de estas opciones:
+
+    📱 Transferencia bancaria
+
+    Banco: BBVA
+    Clave Interbancaria: 012 180 015 021 800 548
+    Beneficiario: Susana Dávila 
+    Incluir como referencia: [Usuario o Nombre del cliente]
+
+    💰 Depósito en ventanilla
+
+    Puede realizar su depósito en cualquier sucursal bancaria
+    Clave Interbancaria: 012 180 015 021 800 548
+    Beneficiario: Susana Dávila 
+    Es indispensable incluir como referencia: [Usuario o Nombre del cliente]
+
+    ⚠️ Importante: Para garantizar el registro correcto de su pago, es esencial incluir su nombre como referencia en cualquier método de pago que elija.
+    Una vez realizado el pago, por favor envíe su comprobante a psic.susidm@gmail.com o al whatsapp (+55) 624 243 3110 para confirmar su cita.
 
     Gracias por agendar una cita con Psic. Susana Dávila.
 
     Saludos cordiales,
     
-    Equipo de Psic. Susana Dávila
+    Psic. Susana Dávila
     """
     
     try:
@@ -351,6 +378,7 @@ def send_confirmation_email_to_admin(appointment):
     Se ha agendado una nueva cita:
 
     Usuario: {appointment.user.username}
+    Nombre: {appointment.user.name}
     Fecha: {day_name}, {appointment.availability.date.strftime('%d/%m/%Y')}
     Hora: {appointment.availability.start_time.strftime('%H:%M')}
 

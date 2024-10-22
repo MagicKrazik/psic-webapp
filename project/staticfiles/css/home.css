@@ -67,6 +67,20 @@ p {
     margin-top: 2rem;
 }
 
+.CTA {
+    color: var(--secondary-color);
+}
+
+.cita-link {
+    color: var(--primary-color);
+    text-decoration: none;
+}
+
+.cita-link:hover {
+    color: var(--secondary-color);
+    text-decoration: underline;
+}
+
 .cta-button {
     display: inline-block;
     background-color: var(--primary-color);

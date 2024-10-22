@@ -44,11 +44,6 @@ h1 {
     transition: transform 0.3s ease, box-shadow 0.3s ease;
 }
 
-.section:hover {
-    transform: translateY(-5px);
-    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-}
-
 h2 {
     color: var(--primary-color);
     margin-bottom: 1.5rem;

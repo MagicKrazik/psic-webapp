@@ -30,9 +30,8 @@ document.addEventListener('DOMContentLoaded', function() {
         const formattedTime = data.time;
 
         welcomeMessage.innerHTML = `
-            <p>Hola ${data.username},</p>
-            <p>Gracias por agendar su cita para el <strong>${formattedDate}</strong> a las <strong>${formattedTime}</strong>.</p>
-            <p>Aquí tiene algunas recomendaciones para prepararse para su sesión:</p>
+            <p>¡Hola ${data.username}!</p>
+            <p>¡Gracias por agendar tu cita!</p>
         `;
     }
 

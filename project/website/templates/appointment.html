@@ -12,11 +12,12 @@
     <h1>Agendar Cita</h1>
     
     <div class="appointment-form">
-        <h2>Seleccione una fecha y hora disponible:</h2>
+        <h2>Seleccione una fecha y hora disponible*:</h2>
         <select id="availability-select">
             <option value="">Cargando horarios...</option>
         </select>
         <button id="book-appointment" class="appointment-button">Reservar Cita</button>
+        <p class="footnote">*Hora de la CDMX, tiempo del centro de México</p>
     </div>
 
     <div id="loading" class="loading" style="display: none;">
@@ -28,7 +29,6 @@
         <h2>¡Cita Confirmada!</h2>
         <p><strong>Fecha:</strong> <span id="confirmed-date"></span></p>
         <p><strong>Hora:</strong> <span id="confirmed-time"></span></p>
-        <p><strong>Recomendaciones antes de la sesión: <a href="{% url 'recomendaciones' %}"> más información </a></strong></p>
     </div>
 
     <div class="user-appointments">
@@ -40,7 +40,7 @@
                 {% if appointment.google_meet_link %}
                     - <a href="{{ appointment.google_meet_link }}" target="_blank" class="meet-link">Unirse a la videollamada</a>
                 {% else %}
-                    - <span class="pending">Enlace pendiente</span>
+                    - <a href="{% url 'recomendaciones' %}" class="pending">Enlace pendiente</a>
                 {% endif %}
             </li>
             {% empty %}
@@ -48,6 +48,7 @@
             {% endfor %}
         </ul>
     </div>
+
 </div>
 {% endblock %}
 {% block extra_js %}

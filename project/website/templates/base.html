@@ -25,7 +25,7 @@
             <div class="navbar-right navbar-menu">
                 
                 {% if user.is_authenticated %}
-                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'home' %}">Inicio</a>
                     <a href="{% url 'about_me' %}">Sobre mí</a>
                     <a href="{% url 'services' %}">Servicios</a>
                     <a href="{% url 'appointment' %}">Citas</a>
@@ -35,7 +35,7 @@
                     {% endif %}
                     <a href="{% url 'logout' %}">Cerrar Sesión</a>
                 {% else %}
-                    <a href="{% url 'home' %}">Home</a>
+                    <a href="{% url 'home' %}">Inicio</a>
                     <a href="{% url 'register' %}">Regístrate</a>
                     <a href="{% url 'login' %}">Iniciar Sesión</a>
                 {% endif %}

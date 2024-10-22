@@ -163,6 +163,7 @@ body {
 
     .logo {
         max-height: 35px;
+        padding-left: 1rem;
     }
 
     .navbar-menu a {

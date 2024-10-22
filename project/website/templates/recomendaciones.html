@@ -10,42 +10,57 @@
 {% block content %}
 
 <div class="recomendaciones-container">
-    <h1>Recomendaciones para su Cita</h1>
 
     <div id="welcome-message" class="welcome-message">
         <!-- This will be populated by JavaScript -->
     </div>
 
-    <div class="recomendaciones-list">
-        <h2>Antes de su Sesión</h2>
-        <ul>
-            <li>Elija un lugar tranquilo y privado para su sesión en línea.</li>
-            <li>Asegúrese de tener una conexión a Internet estable.</li>
-            <li>Pruebe su cámara y micrófono antes de la sesión.</li>
-            <li>Tenga a mano papel y lápiz para tomar notas si lo desea.</li>
-            <li>Reflexione sobre los temas que desea abordar en la sesión.</li>
-            <li>Llegue puntualmente a su cita virtual.</li>
-            <li>Apague las notificaciones de su dispositivo para evitar distracciones.</li>
-            <li>Tenga un vaso de agua cerca por si lo necesita.</li>
-            <li>Vístase cómodamente, como lo haría para una sesión presencial.</li>
-            <li>Recuerde que la terapia es un espacio seguro y confidencial.</li>
-        </ul>
-    </div>
+    <h2>Reglas y recomendaciones para su sesión</h2>
 
-    <div class="preparacion-mental">
-        <h2>Preparación Mental</h2>
-        <p>Es normal sentir nervios antes de su primera sesión. Recuerde que está dando un paso importante para su bienestar mental. Practique algunas respiraciones profundas antes de comenzar para ayudar a calmar cualquier ansiedad.</p>
-    </div>
+    <div class="rules-section">
+        
+        <div class="rules-category">
+            <h3>Antes de la Sesión</h3>
+            <ul class="rules-list">
+                <li>Conéctese 5 minutos antes de la hora programada</li>
+                <li>Asegúrese de tener una conexión estable a Internet</li>
+                <li>Elija un ambiente tranquilo y privado para garantizar la calidad de su sesión</li>
+            </ul>
+        </div>
 
-    <div class="expectativas">
-        <h2>Expectativas</h2>
-        <p>La primera sesión suele ser más informativa. No se preocupe si no aborda todos sus problemas de inmediato. Este es el comienzo de un proceso de crecimiento y autodescubrimiento.</p>
+        <div class="rules-category">
+            <h3>Durante la Sesión</h3>
+            <ul class="rules-list">
+                <li>La sesión comenzará puntualmente a la hora establecida en su cita</li>
+                <li>Toda la información compartida durante la sesión es estrictamente confidencial</li>
+                <li>Mantenga un entorno silencioso para evitar interrupciones durante la sesión</li>
+            </ul>
+        </div>
+
+        <div class="rules-category">
+            <h3>Política de Reagendamiento</h3>
+            <ul class="rules-list">
+                <li>Las solicitudes de reagendamiento deben realizarse con mínimo 24 horas de anticipación</li>
+                <li>Se permite un máximo de dos reagendamientos por mes</li>
+                <li>Al solicitar un reagendamiento, deberá proporcionar el motivo del cambio</li>
+                <li class="important-rule">No se procesarán reembolsos ni reagendamientos con menos de 24 horas de anticipación</li>
+            </ul>
+        </div>
+
+        <div class="rules-category">
+            <h3>Recomendaciones Adicionales</h3>
+            <ul class="rules-list">
+                <li>Tenga papel y lápiz a mano para tomar notas</li>
+                <li>Mantenga un vaso de agua cerca</li>
+                <li>Vista cómodamente, como lo haría para una sesión presencial</li>
+                <li>Desactive las notificaciones de su dispositivo para evitar distracciones</li>
+            </ul>
+        </div>
     </div>
 
     <div class="cta-section">
-        <p>Si tiene alguna pregunta antes de su cita, no dude en contactarnos.</p>
+        <p><strong>Si tiene alguna pregunta antes de su cita, no dude en contactarnos.<strong></p>
         <a href="{% url 'contact' %}" class="cta-button">Contactar</a>
-        <button id="download-pdf" class="cta-button">Descargar PDF</button>
     </div>
 </div>
 

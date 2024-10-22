@@ -107,43 +107,112 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Update user appointments list
     function updateUserAppointments() {
+        const userAppointmentsList = document.getElementById('user-appointments-list');
+        
+        // Show loading state
         showLoading();
+    
+        // Fetch appointments
         fetch('/get-user-appointments/')
-            .then(response => response.json())
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Error al cargar las citas');
+                }
+                return response.json();
+            })
             .then(data => {
                 userAppointmentsList.innerHTML = '';
-                data.forEach(appointment => {
-                    const li = document.createElement('li');
-                    const [day, month, year] = appointment.date.split('/');
-                    const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
-                    const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
-                    const formattedDate = appointmentDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-                    li.textContent = `${dayName}, ${formattedDate} ${appointment.time}`;
-                    if (appointment.google_meet_link) {
-                        const link = document.createElement('a');
-                        link.href = appointment.google_meet_link;
-                        link.textContent = 'Unirse a la videollamada';
-                        link.target = '_blank';
-                        link.className = 'meet-link';
-                        li.appendChild(document.createTextNode(' - '));
-                        li.appendChild(link);
-                    } else {
-                        const span = document.createElement('span');
-                        span.textContent = 'Enlace pendiente';
-                        span.className = 'pending';
-                        li.appendChild(document.createTextNode(' - '));
-                        li.appendChild(span);
-                    }
-                    userAppointmentsList.appendChild(li);
-                });
+                
                 if (data.length === 0) {
                     userAppointmentsList.innerHTML = '<li>No tienes citas programadas.</li>';
+                    return;
                 }
+    
+                data.forEach(appointment => {
+                    const li = document.createElement('li');
+                    
+                    // Format date
+                    const [day, month, year] = appointment.date.split('/');
+                    const appointmentDate = new Date(year, month - 1, day);
+                    const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
+                    const formattedDate = appointmentDate.toLocaleDateString('es-ES', { 
+                        year: 'numeric', 
+                        month: 'long', 
+                        day: 'numeric' 
+                    });
+    
+                    // Create date and time text
+                    const dateTimeText = document.createTextNode(
+                        `${dayName}, ${formattedDate} ${appointment.time}`
+                    );
+                    li.appendChild(dateTimeText);
+                    
+                    // Add separator
+                    li.appendChild(document.createTextNode(' - '));
+    
+                    // Add appropriate link
+                    if (appointment.google_meet_link) {
+                        // Video call link
+                        const meetLink = document.createElement('a');
+                        meetLink.href = appointment.google_meet_link;
+                        meetLink.textContent = 'Unirse a la videollamada';
+                        meetLink.target = '_blank';
+                        meetLink.className = 'meet-link';
+                        meetLink.setAttribute('aria-label', 'Unirse a la videollamada de Google Meet');
+                        li.appendChild(meetLink);
+                        
+                        // Add recommendations link after meet link
+                        li.appendChild(document.createTextNode(' | '));
+                        const recomendacionesLink = document.createElement('a');
+                        recomendacionesLink.href = '/recomendaciones/';
+                        recomendacionesLink.textContent = 'Ver recomendaciones';
+                        recomendacionesLink.className = 'recomendaciones-link';
+                        recomendacionesLink.setAttribute('aria-label', 'Ver recomendaciones para la sesión');
+                        li.appendChild(recomendacionesLink);
+                    } else {
+                        // Only recommendations link when no meet link is available
+                        const recomendacionesLink = document.createElement('a');
+                        recomendacionesLink.href = '/recomendaciones/';
+                        recomendacionesLink.textContent = 'Ver recomendaciones para la sesión';
+                        recomendacionesLink.className = 'recomendaciones-link';
+                        recomendacionesLink.setAttribute('aria-label', 'Ver recomendaciones para la sesión');
+                        li.appendChild(recomendacionesLink);
+                    }
+    
+                    userAppointmentsList.appendChild(li);
+                });
             })
-            .catch(error => console.error('Error fetching user appointments:', error))
+            .catch(error => {
+                console.error('Error fetching user appointments:', error);
+                userAppointmentsList.innerHTML = `
+                    <li class="error-message">
+                        No se pudieron cargar las citas. Por favor, intente nuevamente.
+                        <button onclick="updateUserAppointments()" class="retry-button">
+                            Reintentar
+                        </button>
+                    </li>
+                `;
+            })
             .finally(() => {
                 hideLoading();
             });
+    }
+    
+    // Helper functions for loading state
+    function showLoading() {
+        const userAppointmentsList = document.getElementById('user-appointments-list');
+        userAppointmentsList.classList.add('loading');
+        userAppointmentsList.innerHTML = `
+            <li class="loading-message">
+                <div class="spinner"></div>
+                <span>Cargando sus citas...</span>
+            </li>
+        `;
+    }
+    
+    function hideLoading() {
+        const userAppointmentsList = document.getElementById('user-appointments-list');
+        userAppointmentsList.classList.remove('loading');
     }
 
     // Helper function to get CSRF token

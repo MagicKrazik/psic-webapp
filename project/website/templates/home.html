@@ -16,13 +16,12 @@
         <p>¿Te sientes atrapado en patrones repetitivos? Con terapia podrás identificar y modificar conductas que te limitan.</p>
         <p>¡No sigas postergando tu bienestar! Agenda una primera sesión y comienza a sentirte mejor hoy mismo.</p>
         <div class="cta-buttons">
-            <a href="{% url 'login' %}" class="cta-button">Agendar consulta</a>
+            <a href="{% url 'appointment' %}" class="cta-button">Agendar consulta</a>
             <a href="#servicios" class="cta-button secondary">Conocer servicios</a>
         </div>
     </section>
 
     <section id="sobre-la-psicologa" class="section">
-        <h2>Sobre mi</h2>
         <div class="psychologist-info">
             <img src="{% static 'images/Image_psic.jpg' %}" alt="Psic. Susana Dávila Martínez" class="psychologist-photo">
             <blockquote>
@@ -37,12 +36,12 @@
             <div class="service-card">
                 <i class="fas fa-user"></i>
                 <h3>Terapia individual</h3>
-                <p>Sesiones personalizadas para abordar sus necesidades específicas y trabajar en su crecimiento personal.</p>
+                <p>Sesiones personalizadas para abordar tus necesidades específicas y trabajar en tu crecimiento personal.</p>
             </div>
             <div class="service-card">
                 <i class="fas fa-heart"></i>
                 <h3>Terapia de pareja</h3>
-                <p>Apoyo para fortalecer la comunicación y resolver conflictos en su relación.</p>
+                <p>Apoyo para fortalecer la comunicación y resolver conflictos en tu relación.</p>
             </div>
             <div class="service-card">
                 <i class="fas fa-users"></i>
@@ -62,7 +61,7 @@
             <div class="service-card">
                 <i class="fas fa-brain"></i>
                 <h3>Manejo del estrés</h3>
-                <p>Aprenderá técnicas efectivas para manejar el estrés y la ansiedad en su vida diaria.</p>
+                <p>Aprenderás técnicas efectivas para manejar el estrés y la ansiedad en su vida diaria.</p>
             </div>
         </div>
     </section>
@@ -75,7 +74,7 @@
                     <p><strong>"Las sesiones con la Psic. Susana han sido transformadoras. Me siento más seguro y capaz de enfrentar mis desafíos."</strong></p>
                 </div>
                 <div class="testimonial-author">
-                    <img src="{% static 'images/testimonial1.png' %}" alt="Carlos R." class="testimonial-avatar">
+                    
                     <p class="testimonial-name">Carlos R.</p>
                 </div>
             </div>
@@ -84,7 +83,7 @@
                     <p><strong>"Gracias a la terapia, he mejorado significativamente mi relación de pareja. Estoy muy agradecida."</strong></p>
                 </div>
                 <div class="testimonial-author">
-                    <img src="{% static 'images/testimonial2.png' %}" alt="María L." class="testimonial-avatar">
+                    
                     <p class="testimonial-name">María L.</p>
                 </div>
             </div>
@@ -93,7 +92,7 @@
                     <p><strong>"El enfoque empático de la Psic. Susana me ha ayudado a superar momentos difíciles. Altamente recomendada."</strong></p>
                 </div>
                 <div class="testimonial-author">
-                    <img src="{% static 'images/testimonial3.png' %}" alt="Juan P." class="testimonial-avatar">
+                    
                     <p class="testimonial-name">Juan P.</p>
                 </div>
             </div>
@@ -102,7 +101,7 @@
                     <p><strong>"He notado un cambio significativo en mi bienestar emocional desde que comencé la terapia. Susana es una profesional excepcional."</strong></p>
                 </div>
                 <div class="testimonial-author">
-                    <img src="{% static 'images/testimonial4.png' %}" alt="Ana M." class="testimonial-avatar">
+                    
                     <p class="testimonial-name">Ana M.</p>
                 </div>
             </div>
@@ -115,15 +114,15 @@
 
     <section id="agendar-cita" class="section">
         <h2>Agendar cita</h2>
-        <p>Estás a un paso de comenzar tu viaje hacia el bienestar emocional. Agenda tu cita hoy y da el primer paso hacia una vida más plena.</p>
-        <p><strong>Precio por sesión de 1hr: $400 MXN</strong></p>
+        <p>Estás a un paso de comenzar tu viaje hacia el bienestar emocional. <strong class="CTA">Agenda tu cita hoy y da el primer paso hacia una vida más plena.</strong></p>
+        <p><strong>Precio por sesión de 55min: $400 MXN</strong></p>
         <div class="steps-container">
             <h3>Para comenzar tu terapia, sigue estos sencillos pasos:</h3>
             <ol class="steps-list">
                 <li><strong>Regístrate:</strong> Ingresa a nuestra página web y completa el formulario de registro. Necesitaremos tus datos personales y de contacto para crear tu perfil.</li>
                 <li><strong>Explora nuestras citas:</strong> Una vez registrado, dirígete a la sección de citas. Ahí encontrarás los horarios disponibles. Selecciona el que mejor se adapte a tu agenda.</li>
-                <li><strong>Confirma tu cita:</strong> Para asegurar tu lugar, realiza un pago del 50% del costo de la sesión. Esto confirmará tu cita.</li>
-                <li><strong>Recibe el enlace:</strong> ¡Listo! Una vez recibido tu pago, te enviaremos un correo electrónico con el enlace de Google Meet para que puedas conectarte a tu sesión a la hora indicada.</li>
+                <li><strong>Confirma tu cita:</strong> Realiza el pago con los datos que te enviaremos por correo y ¡tu cita estará confirmada! </li>
+                <li><strong>Recibe el enlace:</strong> ¡Listo! Una vez recibido tu pago, se actualizará el link dentro de la sección de <a href="{% url 'appointment' %}" class="cita-link"><strong>Mis Citas</strong></a> con el enlace de Google Meet para que puedas conectarte a tu sesión en la fecha y a la hora indicada.</li>
             </ol>
         </div>
         <a href="{% url 'login' %}" class="cta-button">Agendar ahora</a>
@@ -134,8 +133,6 @@
         <div class="social-links">
             <a href="#" class="social-icon" target="_blank"><i class="fab fa-instagram"></i> Instagram</a>
             <a href="#" class="social-icon" target="_blank"><i class="fab fa-facebook"></i> Facebook</a>
-            <a href="#" class="social-icon" target="_blank"><i class="fab fa-twitter"></i> Twitter</a>
-            <a href="#" class="social-icon" target="_blank"><i class="fab fa-linkedin"></i> LinkedIn</a>
         </div>
     </section>
 </div>
