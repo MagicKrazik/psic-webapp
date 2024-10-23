@@ -328,19 +328,21 @@ def send_confirmation_email_to_user(appointment):
 
     Para confirmar tu cita, puedes realizar el pago mediante cualquiera de estas opciones:
 
+    Precio por sesión de 55min: $500 MXN
+
     📱 Transferencia bancaria
 
     Banco: BBVA
     Clave Interbancaria: 012 180 015 021 800 548
     Beneficiario: Susana Dávila 
-    Incluir como referencia: [Nombre completo]
+    Incluir como referencia: [Usuario o Nombre completo]
 
     💰 Depósito en ventanilla
 
     Puedes realizar tu depósito en cualquier sucursal bancaria
     Clave Interbancaria: 012 180 015 021 800 548
     Beneficiario: Susana Dávila 
-    Es indispensable incluir como referencia: [Nombre completo]
+    Es indispensable incluir como referencia: [Ususario o Nombre completo]
 
     ⚠️ Importante: Para garantizar el registro correcto de tu pago, es esencial incluir tu nombre completo como referencia en cualquier método de pago que elijas.
     Una vez realizado el pago, por favor envía tu comprobante a psic.susidm@gmail.com o al whatsapp (+55) 624 243 3110 para confirmar tu cita.
@@ -419,11 +421,6 @@ def get_user_appointments(request):
 
 
 ## para la confirmacion de citas, son dos views distintos get_user_appointment != get_user_appointments
-
-@login_required
-def recomendaciones(request):
-    return render(request, 'recomendaciones.html')
-
 
 # NO borrar
 @login_required

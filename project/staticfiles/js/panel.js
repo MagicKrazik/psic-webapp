@@ -257,7 +257,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Calculate and display total earnings
     function updateTotalEarnings() {
         const paidAppointments = document.querySelectorAll('.paid').length;
-        const totalEarnings = paidAppointments * 400; // Assuming 400 pesos per session
+        const pricePerSession = 500; // Updated from 400 to 500
+        const totalEarnings = paidAppointments * pricePerSession;
         document.getElementById('totalEarnings').textContent = totalEarnings;
     }
 
@@ -331,8 +332,9 @@ document.addEventListener('DOMContentLoaded', function() {
                                 --primary-color: #2A044A;
                                 --secondary-color: #FF69B4;
                                 --text-color: #333333;
-                                --background-color: #F5F5F5;
-                                --accent-color: #FF7043;
+                                --background-color: #D3D3D3;
+                                --section-bg-color: #F5F5F5;
+                                --accent-color: #9A0372;
                             }
                             body { 
                                 font-family: 'Arial', sans-serif; 
@@ -441,7 +443,7 @@ document.addEventListener('DOMContentLoaded', function() {
                             <div class="summary">
                                 <div class="summary-item">
                                     <div>Total de Ingresos</div>
-                                    <div class="summary-value">$${data.data.total_revenue.toFixed(2)}</div>
+                                    <div class="summary-value">$${(data.data.total_revenue).toFixed(2)}</div>
                                 </div>
                                 <div class="summary-item">
                                     <div>Total de Citas</div>

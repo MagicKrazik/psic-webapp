@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.contrib.auth.admin import UserAdmin
-from .models import CustomUser, Appointment
+from .models import CustomUser, Appointment, Availability
 
 class CustomUserAdmin(UserAdmin):
     model = CustomUser
@@ -14,3 +14,4 @@ class CustomUserAdmin(UserAdmin):
 
 admin.site.register(CustomUser, CustomUserAdmin)
 admin.site.register(Appointment)
+admin.site.register(Availability)
