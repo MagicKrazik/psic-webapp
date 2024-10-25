@@ -20,7 +20,7 @@ class CustomUserCreationForm(UserCreationForm):
             'username': _('Usuario'),
             'phone': _('Teléfono'),
             'age': _('Edad'),
-            'location': _('Ubicación'),
+            'location': _('Ciudad'),
         }
 
     def __init__(self, *args, **kwargs):
