@@ -118,6 +118,11 @@ select, .appointment-button {
     color: red;
 }
 
+.footnote_2 {
+    font-size: 0.95rem;
+    color: var(--primary-color);
+}
+
 /* Responsive Design */
 @media (max-width: 1200px) {
     .appointment-container {
@@ -237,4 +242,15 @@ select, .appointment-button {
 
 .here {
     color:red;
+}
+
+.contact-link {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+.contact-link:hover {
+    color: var(--accent-color);
 }
