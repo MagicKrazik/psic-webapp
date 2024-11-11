@@ -3,6 +3,7 @@ document.addEventListener('DOMContentLoaded', function() {
     flatpickr("#date, #startDate, #endDate", {
         dateFormat: "Y-m-d",
         minDate: "today",
+        locale: "es"
     });
 
     flatpickr("#startTime, #recurringStartTime", {
@@ -12,6 +13,24 @@ document.addEventListener('DOMContentLoaded', function() {
         time_24hr: true,
         minuteIncrement: 60,
     });
+
+    // Toggle functionality for availability list
+    const toggleBtn = document.getElementById('toggleAvailabilities');
+    const container = document.getElementById('availabilityListContainer');
+    if (toggleBtn && container) {
+        toggleBtn.addEventListener('click', () => {
+            container.classList.toggle('collapsed');
+            const toggleIcon = toggleBtn.querySelector('.toggle-icon');
+            const toggleText = toggleBtn.querySelector('.toggle-text');
+            if (container.classList.contains('collapsed')) {
+                toggleIcon.textContent = '▶';
+                toggleText.textContent = 'Mostrar';
+            } else {
+                toggleIcon.textContent = '▼';
+                toggleText.textContent = 'Ocultar';
+            }
+        });
+    }
 
     // Handle form submission for adding individual availability
     const availabilityForm = document.getElementById('availabilityForm');
@@ -35,8 +54,54 @@ document.addEventListener('DOMContentLoaded', function() {
         addRecurringAvailability(startDate, endDate, days, startTime);
     });
 
+    // Initialize filters
+    const monthFilter = document.getElementById('monthFilter');
+    const weekdayFilter = document.getElementById('weekdayFilter');
+    let currentAvailabilities = [];
+
+    if (monthFilter && weekdayFilter) {
+        monthFilter.addEventListener('change', filterAndDisplayAvailabilities);
+        weekdayFilter.addEventListener('change', filterAndDisplayAvailabilities);
+    }
+
+    function filterAndDisplayAvailabilities() {
+        const monthValue = monthFilter.value;
+        const weekdayValue = weekdayFilter.value;
+        
+        let filteredAvailabilities = [...currentAvailabilities];
+        
+        if (monthValue) {
+            filteredAvailabilities = filteredAvailabilities.filter(availability => {
+                const date = new Date(availability.date);
+                return (date.getMonth() + 1).toString() === monthValue;
+            });
+        }
+        
+        if (weekdayValue) {
+            filteredAvailabilities = filteredAvailabilities.filter(availability => {
+                const date = new Date(availability.date + 'T00:00:00');
+                // Django's week_day goes from 1 (Sunday) to 7 (Saturday)
+                // This matches our HTML select values now
+                const djangoWeekDay = ((date.getDay() + 7) % 7) + 1;
+                return djangoWeekDay.toString() === weekdayValue;
+            });
+        }
+        
+        displayAvailabilities(filteredAvailabilities);
+    }
+
     // Fetch and display availabilities
-    fetchAvailabilities();
+    function fetchAvailabilities() {
+        fetch('/get-availabilities/')
+            .then(response => response.json())
+            .then(data => {
+                currentAvailabilities = data;
+                filterAndDisplayAvailabilities();
+            })
+            .catch(error => {
+                console.error('Error fetching availabilities:', error);
+            });
+    }
 
     function addAvailability(date, startTime) {
         fetch('/add-availability/', {
@@ -80,52 +145,76 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function fetchAvailabilities() {
-        fetch('/get-availabilities/')
-            .then(response => response.json())
-            .then(data => {
-                displayAvailabilities(data);
-            })
-            .catch(error => {
-                console.error('Error fetching availabilities:', error);
-            });
-    }
-
     function displayAvailabilities(availabilities) {
         const availabilityList = document.getElementById('availabilityList');
+        if (!availabilityList) return;
+
         availabilityList.innerHTML = '';
+        
         if (availabilities.length === 0) {
-            availabilityList.innerHTML = '<li>No hay horarios disponibles registrados.</li>';
-        } else {
-            const bulkDeleteForm = document.createElement('form');
-            bulkDeleteForm.id = 'bulkDeleteForm';
-            bulkDeleteForm.innerHTML = '<button type="submit" class="btn-secondary" id="bulkDeleteButton">Eliminar seleccionados</button>';
-            availabilityList.appendChild(bulkDeleteForm);
-
-            availabilities.forEach(availability => {
-                const li = document.createElement('li');
-                const date = new Date(availability.date + 'T00:00:00');
-                const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(date);
-                const formattedDate = date.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
-                li.innerHTML = `
-                    <input type="checkbox" name="bulk_delete" value="${availability.id}">
-                    ${dayName}, ${formattedDate} ${availability.start_time} - ${availability.end_time}
-                    <button class="btn-secondary delete-availability" data-id="${availability.id}">Eliminar</button>
-                `;
-                availabilityList.appendChild(li);
-            });
-
-            // Add event listener for bulk delete
-            document.getElementById('bulkDeleteForm').addEventListener('submit', function(e) {
-                e.preventDefault();
-                const selectedIds = Array.from(document.querySelectorAll('input[name="bulk_delete"]:checked')).map(input => input.value);
-                if (selectedIds.length > 0) {
-                    bulkDeleteAvailabilities(selectedIds);
-                } else {
-                    alert('Por favor, seleccione al menos una disponibilidad para eliminar.');
-                }
-            });
+            availabilityList.innerHTML = '<div class="no-availabilities">No hay horarios disponibles para los filtros seleccionados.</div>';
+            return;
         }
+
+        // Add bulk delete button
+        const bulkDeleteForm = document.createElement('form');
+        bulkDeleteForm.id = 'bulkDeleteForm';
+        bulkDeleteForm.className = 'bulk-delete-form';
+        bulkDeleteForm.innerHTML = '<button type="submit" class="btn-secondary" id="bulkDeleteButton">Eliminar seleccionados</button>';
+        availabilityList.appendChild(bulkDeleteForm);
+
+        // Create availability cards container
+        const cardsContainer = document.createElement('div');
+        cardsContainer.className = 'availability-grid';
+
+        // Sort availabilities by date and time
+        availabilities.sort((a, b) => {
+            const dateA = new Date(a.date + 'T' + a.start_time);
+            const dateB = new Date(b.date + 'T' + b.start_time);
+            return dateA - dateB;
+        });
+
+        availabilities.forEach(availability => {
+            const date = new Date(availability.date + 'T00:00:00');
+            const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(date);
+            const formattedDate = date.toLocaleDateString('es-ES', { 
+                year: 'numeric', 
+                month: 'long', 
+                day: 'numeric' 
+            });
+
+            const card = document.createElement('div');
+            card.className = 'availability-card';
+            card.innerHTML = `
+                <div class="availability-card-header">
+                    <input type="checkbox" name="bulk_delete" value="${availability.id}">
+                    <div class="availability-card-date">${dayName}</div>
+                </div>
+                <div class="availability-card-time">
+                    ${formattedDate}<br>
+                    ${availability.start_time} - ${availability.end_time}
+                </div>
+                <div class="availability-card-actions">
+                    <button class="btn-secondary delete-availability" data-id="${availability.id}">
+                        Eliminar
+                    </button>
+                </div>
+            `;
+            cardsContainer.appendChild(card);
+        });
+
+        availabilityList.appendChild(cardsContainer);
+
+        // Add event listeners for bulk delete
+        document.getElementById('bulkDeleteForm').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const selectedIds = Array.from(document.querySelectorAll('input[name="bulk_delete"]:checked')).map(input => input.value);
+            if (selectedIds.length > 0) {
+                bulkDeleteAvailabilities(selectedIds);
+            } else {
+                alert('Por favor, seleccione al menos una disponibilidad para eliminar.');
+            }
+        });
 
         // Add event listeners for individual delete buttons
         document.querySelectorAll('.delete-availability').forEach(button => {
@@ -199,7 +288,7 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 alert('Pago registrado con éxito');
-                location.reload(); // Refresh the page to update the UI
+                location.reload();
             } else {
                 alert(`Error: ${data.message}`);
             }
@@ -257,9 +346,12 @@ document.addEventListener('DOMContentLoaded', function() {
     // Calculate and display total earnings
     function updateTotalEarnings() {
         const paidAppointments = document.querySelectorAll('.paid').length;
-        const pricePerSession = 500; // Updated from 400 to 500
+        const pricePerSession = 500;
         const totalEarnings = paidAppointments * pricePerSession;
-        document.getElementById('totalEarnings').textContent = totalEarnings;
+        const totalEarningsElement = document.getElementById('totalEarnings');
+        if (totalEarningsElement) {
+            totalEarningsElement.textContent = totalEarnings.toLocaleString('es-MX');
+        }
     }
 
     updateTotalEarnings();
@@ -292,7 +384,7 @@ document.addEventListener('DOMContentLoaded', function() {
             .then(data => {
                 if (data.status === 'success') {
                     alert(`${data.deleted_count} citas eliminadas con éxito`);
-                    location.reload(); // Refresh the page to update the UI
+                    location.reload();
                 } else {
                     alert(`Error: ${data.message}`);
                 }
@@ -300,202 +392,7 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Generate revenue report functionality
-    const generateReportButton = document.getElementById('generateReport');
-    if (generateReportButton) {
-        generateReportButton.addEventListener('click', function() {
-            generateRevenueReport();
-        });
-    }
+    // Initialize on load
+    fetchAvailabilities();
 
-    function generateRevenueReport() {
-        fetch('/generate-revenue-report/', {
-            method: 'GET',
-            headers: {
-                'X-Requested-With': 'XMLHttpRequest',
-                'X-CSRFToken': getCookie('csrftoken')
-            }
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (data.status === 'success') {
-                const reportWindow = window.open('', '_blank');
-                reportWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html lang="es">
-                    <head>
-                        <meta charset="UTF-8">
-                        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-                        <title>Reporte de Ingresos - Psic. Susana Dávila</title>
-                        <style>
-                            :root {
-                                --primary-color: #2A044A;
-                                --secondary-color: #FF69B4;
-                                --text-color: #333333;
-                                --background-color: #D3D3D3;
-                                --section-bg-color: #F5F5F5;
-                                --accent-color: #9A0372;
-                            }
-                            body { 
-                                font-family: 'Arial', sans-serif; 
-                                line-height: 1.6; 
-                                color: var(--text-color); 
-                                background-color: var(--background-color);
-                                margin: 0;
-                                padding: 0;
-                            }
-                            .container { 
-                                max-width: 1000px; 
-                                margin: 0 auto; 
-                                padding: 20px;
-                                background-color: white;
-                                box-shadow: 0 0 10px rgba(0,0,0,0.1);
-                            }
-                            header {
-                                background-color: var(--primary-color);
-                                color: white;
-                                padding: 20px;
-                                text-align: center;
-                            }
-                            h1 { 
-                                margin: 0;
-                                font-size: 28px;
-                            }
-                            .subheader {
-                                font-size: 18px;
-                                margin-top: 10px;
-                            }
-                            .summary { 
-                                background-color: var(--secondary-color);
-                                color: white;
-                                padding: 20px;
-                                border-radius: 5px;
-                                margin: 20px 0;
-                                display: flex;
-                                justify-content: space-between;
-                            }
-                            .summary-item {
-                                text-align: center;
-                            }
-                            .summary-value {
-                                font-size: 24px;
-                                font-weight: bold;
-                            }
-                            table { 
-                                width: 100%; 
-                                border-collapse: collapse; 
-                                margin-top: 20px;
-                                background-color: white;
-                            }
-                            th, td { 
-                                border: 1px solid #ddd; 
-                                padding: 12px; 
-                                text-align: left; 
-                            }
-                            th { 
-                                background-color: var(--primary-color); 
-                                color: white; 
-                            }
-                            tr:nth-child(even) { 
-                                background-color: #f2f2f2; 
-                            }
-                            .btn { 
-                                display: inline-block; 
-                                padding: 10px 20px; 
-                                background-color: #9A0372; 
-                                color: white; 
-                                text-decoration: none; 
-                                border-radius: 5px;
-                                border: none;
-                                cursor: pointer;
-                                font-size: 16px;
-                                transition: background-color 0.3s ease;
-                            }
-                            .btn:hover {
-                                background-color: #FF69B4;
-                            }
-                            footer {
-                                margin-top: 20px;
-                                text-align: center;
-                                color: #666;
-                                font-size: 14px;
-                            }
-                            @media print {
-                                body {
-                                    background-color: white;
-                                }
-                                .container {
-                                    box-shadow: none;
-                                }
-                                .btn { 
-                                    display: none; 
-                                }
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        <div class="container">
-                            <header>
-                                <h1>Reporte de Ingresos</h1>
-                                <div class="subheader">Psic. Susana Dávila</div>
-                            </header>
-                            
-                            <div class="summary">
-                                <div class="summary-item">
-                                    <div>Total de Ingresos</div>
-                                    <div class="summary-value">$${(data.data.total_revenue).toFixed(2)}</div>
-                                </div>
-                                <div class="summary-item">
-                                    <div>Total de Citas</div>
-                                    <div class="summary-value">${data.data.appointments.length}</div>
-                                </div>
-                            </div>
-    
-                            <table>
-                                <thead>
-                                    <tr>
-                                        <th>Cliente</th>
-                                        <th>Fecha</th>
-                                        <th>Hora</th>
-                                        <th>Ingreso</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    ${data.data.appointments.map(appointment => `
-                                        <tr>
-                                            <td>${appointment.user}</td>
-                                            <td>${appointment.date}</td>
-                                            <td>${appointment.time}</td>
-                                            <td>$${appointment.price.toFixed(2)}</td>
-                                        </tr>
-                                    `).join('')}
-                                </tbody>
-                            </table>
-    
-                            <footer>
-                                <p>Generado el: ${data.data.generated_at.split(' ')[0]}</p>
-                            </footer>
-    
-                            <br>
-                            <button class="btn" onclick="window.print()">Descargar como PDF</button>
-                        </div>
-                        <script>
-                            document.querySelector('.btn').addEventListener('click', function(e) {
-                                e.preventDefault();
-                                window.print();
-                            });
-                        </script>
-                    </body>
-                    </html>
-                `);
-                reportWindow.document.close();
-            } else {
-                alert('Error al generar el reporte. Por favor, inténtelo de nuevo.');
-            }
-        })
-        .catch(error => {
-            console.error('Error generating report:', error);
-            alert('Hubo un problema al generar el reporte. Por favor, inténtelo de nuevo más tarde.');
-        });
-    }
 });

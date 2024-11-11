@@ -53,9 +53,15 @@ def register(request):
     if request.method == 'POST':
         form = CustomUserCreationForm(request.POST)
         if form.is_valid():
-            user = form.save()
-            login(request, user)
-            return redirect('home')
+            try:
+                user = form.save()
+                login(request, user)
+                messages.success(request, 'Registro exitoso. ¡Bienvenido!')
+                return redirect('home')
+            except Exception as e:
+                logger.error(f"Error during user registration: {str(e)}")
+                messages.error(request, 'Error durante el registro. Por favor, intente nuevamente.')
+                return render(request, 'register.html', {'form': form})
     else:
         form = CustomUserCreationForm()
     return render(request, 'register.html', {'form': form})
@@ -102,9 +108,36 @@ def custom_permission_denied_view(request, exception):
 @login_required
 @user_passes_test(is_staff_or_superuser)
 def admin_panel(request):
-    availabilities = Availability.objects.filter(date__gte=timezone.now().date()).order_by('date', 'start_time')
-    appointments = Appointment.objects.filter(availability__date__gte=timezone.now().date()).order_by('availability__date', 'availability__start_time')
-    return render(request, 'panel.html', {'availabilities': availabilities, 'appointments': appointments})
+    # Get data for admin panel
+    availabilities = Availability.objects.filter(
+        date__gte=timezone.now().date()
+    ).order_by('date', 'start_time')
+    
+    appointments = Appointment.objects.filter(
+        availability__date__gte=timezone.now().date()
+    ).order_by('availability__date', 'availability__start_time')
+    
+    # Get registered users excluding staff and superusers
+    registered_users = CustomUser.objects.filter(
+        is_staff=False,
+        is_superuser=False
+    ).order_by('-date_joined')
+    
+    # Calculate statistics
+    total_users = registered_users.count()
+    total_appointments = appointments.count()
+    paid_appointments = appointments.filter(is_paid=True).count()
+    
+    context = {
+        'availabilities': availabilities,
+        'appointments': appointments,
+        'registered_users': registered_users,
+        'total_users': total_users,
+        'total_appointments': total_appointments,
+        'paid_appointments': paid_appointments,
+    }
+    
+    return render(request, 'panel.html', context)
 
 
 
@@ -274,34 +307,31 @@ def update_google_meet_link(request, appointment_id):
 @login_required
 @require_http_methods(["GET"])
 def get_availabilities(request):
-    try:
-        # Get current time and add 24 hours
-        min_datetime = timezone.now() + timedelta(hours=24)
-        
-        # Get available slots
-        availabilities = Availability.objects.filter(
-            is_booked=False
-        ).order_by('date', 'start_time')
-        
-        data = []
-        for availability in availabilities:
-            # Combine date and start_time to create a datetime object for comparison
-            appointment_datetime = timezone.make_aware(
-                datetime.combine(availability.date, availability.start_time)
-            )
-            
-            # Only include appointments that are more than 24 hours in advance
-            if appointment_datetime >= min_datetime:
-                data.append({
-                    'id': availability.id,
-                    'date': availability.date.strftime('%Y-%m-%d'),
-                    'start_time': availability.start_time.strftime('%H:%M'),
-                    'end_time': availability.end_time.strftime('%H:%M'),
-                })
-        
-        return JsonResponse(data, safe=False)
-    except Exception as e:
-        return JsonResponse({'status': 'error', 'message': str(e)}, status=500)
+    weekday = request.GET.get('weekday')
+    date = request.GET.get('date')
+    
+    # Get availabilities at least 24 hours in advance
+    min_datetime = timezone.now() + timedelta(hours=24)
+    
+    availabilities = Availability.objects.filter(
+        is_booked=False,
+        date__gte=min_datetime.date()
+    ).order_by('date', 'start_time')
+
+    if weekday:
+        availabilities = availabilities.filter(date__week_day=int(weekday))
+    if date:
+        availabilities = availabilities.filter(date=date)
+
+    data = [{
+        'id': availability.id,
+        'date': availability.date.strftime('%Y-%m-%d'),
+        'start_time': availability.start_time.strftime('%H:%M'),
+        'end_time': availability.end_time.strftime('%H:%M'),
+        'weekday': availability.date.strftime('%A')
+    } for availability in availabilities]
+
+    return JsonResponse(data, safe=False)
 
 
 # Send Confirmation emails to user and admin
@@ -376,7 +406,7 @@ def send_confirmation_email_to_admin(appointment):
 
     message = f"""
 
-    Se ha agendado una nueva cita SuperSusy:
+    Se ha agendado una nueva cita SuperSusi:
 
     Usuario: {appointment.user.username}
     Nombre: {appointment.user.name}
@@ -586,5 +616,5 @@ class CustomPasswordResetConfirmView(PasswordResetConfirmView):
 
 class CustomPasswordResetCompleteView(PasswordResetCompleteView):
     template_name = 'password_reset_complete.html'    
-
+    
 ### ready for production    

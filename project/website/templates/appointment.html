@@ -13,10 +13,38 @@
     
     <div class="appointment-form">
         <h2>Seleccione una fecha y hora disponible*:</h2>
-        <select id="availability-select">
-            <option value="">Cargando horarios...</option>
-        </select>
-        <button id="book-appointment" class="appointment-button">Reservar Cita</button>
+        
+        <div class="appointment-filters">
+            <div class="filter-group">
+                <label for="weekday-select">Día de la semana:</label>
+                <select id="weekday-select" class="filter-select">
+                    <option value="">Seleccionar día</option>
+                    <option value="2">Lunes</option>
+                    <option value="3">Martes</option>
+                    <option value="4">Miércoles</option>
+                    <option value="5">Jueves</option>
+                    <option value="6">Viernes</option>
+                    <option value="7">Sábado</option>
+                    <option value="1">Domingo</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="date-select">Fecha disponible:</label>
+                <select id="date-select" class="filter-select" disabled>
+                    <option value="">Primero selecciona un día</option>
+                </select>
+            </div>
+
+            <div class="filter-group">
+                <label for="time-select">Hora disponible:</label>
+                <select id="time-select" class="filter-select" disabled>
+                    <option value="">Primero selecciona una fecha</option>
+                </select>
+            </div>
+        </div>
+
+        <button id="book-appointment" class="appointment-button" disabled>Reservar Cita</button>
         <p class="footnote">* Hora de la CDMX, tiempo del centro de México</p>
         <p class="footnote_2"><strong>* En caso de que estos horarios no se ajusten a tu disponibilidad, por favor <a href="{% url 'contact' %}" class="contact-link">contáctame</a> para coordinar una cita personalizada.</strong></p>
     </div>
@@ -31,7 +59,7 @@
         <p><strong>Fecha:</strong> <span id="confirmed-date"></span></p>
         <p><strong>Hora:</strong> <span id="confirmed-time"></span></p>
         <p><strong>¡Confirma tu cita!:</strong> Hemos enviado un correo electrónico de confirmación a tu bandeja de entrada.</p>
-        <p><strong>No te llego tu coreo?:</strong> clic <a href="{% url 'contact' %}" class="here">aquí</a> para avisarnos</p>
+        <p><strong>No te llegó tu correo?:</strong> clic <a href="{% url 'contact' %}" class="here">aquí</a> para avisarnos</p>
     </div>
 
     <div class="user-appointments">
@@ -51,9 +79,9 @@
             {% endfor %}
         </ul>
     </div>
-
 </div>
 {% endblock %}
+
 {% block extra_js %}
 <script src="{% static 'js/appointment.js' %}"></script>
 {% endblock %}

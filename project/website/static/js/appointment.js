@@ -1,11 +1,15 @@
 document.addEventListener('DOMContentLoaded', function() {
-    const availabilitySelect = document.getElementById('availability-select');
+    const weekdaySelect = document.getElementById('weekday-select');
+    const dateSelect = document.getElementById('date-select');
+    const timeSelect = document.getElementById('time-select');
     const bookAppointmentButton = document.getElementById('book-appointment');
     const appointmentConfirmation = document.getElementById('appointment-confirmation');
     const confirmedDate = document.getElementById('confirmed-date');
     const confirmedTime = document.getElementById('confirmed-time');
     const userAppointmentsList = document.getElementById('user-appointments-list');
     const loadingElement = document.getElementById('loading');
+
+    let availabilities = [];
 
     function showLoading() {
         loadingElement.style.display = 'block';
@@ -15,7 +19,7 @@ document.addEventListener('DOMContentLoaded', function() {
         loadingElement.style.display = 'none';
     }
 
-    // Fetch availabilities and populate the select element
+    // Fetch all availabilities
     function fetchAvailabilities() {
         showLoading();
         fetch('/get-availabilities/')
@@ -26,42 +30,114 @@ document.addEventListener('DOMContentLoaded', function() {
                 return response.json();
             })
             .then(data => {
-                availabilitySelect.innerHTML = '<option value="">Seleccione un horario</option>';
+                availabilities = data;
                 if (data.length === 0) {
-                    const option = document.createElement('option');
-                    option.textContent = 'No hay horarios disponibles';
-                    availabilitySelect.appendChild(option);
+                    weekdaySelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
+                    dateSelect.innerHTML = '<option value="">No hay fechas disponibles</option>';
+                    timeSelect.innerHTML = '<option value="">No hay horarios disponibles</option>';
                 } else {
-                    data.forEach(availability => {
-                        const option = document.createElement('option');
-                        option.value = availability.id;
-                        const date = new Date(availability.date + 'T00:00:00');  // Create date object in local timezone
-                        const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(date);
-                        const formattedDate = formatDate(date);
-                        option.textContent = `${dayName}, ${formattedDate} ${availability.start_time} - ${availability.end_time}`;
-                        availabilitySelect.appendChild(option);
-                    });
+                    populateWeekdays(data);
                 }
             })
             .catch(error => {
                 console.error('Error fetching availabilities:', error);
-                availabilitySelect.innerHTML = '<option value="">Error al cargar horarios</option>';
+                weekdaySelect.innerHTML = '<option value="">Error al cargar horarios</option>';
             })
             .finally(() => {
                 hideLoading();
             });
     }
-    
-    function formatDate(date) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return date.toLocaleDateString('es-ES', options);
+
+    // Populate weekday select
+    function populateWeekdays(data) {
+        const uniqueWeekdays = new Set();
+        data.forEach(availability => {
+            const date = new Date(availability.date + 'T00:00:00');
+            // Convert to Django's week_day format (1-7, Sunday is 1)
+            const weekDay = ((date.getDay() + 7) % 7) + 1;
+            uniqueWeekdays.add(weekDay);
+        });
+
+        weekdaySelect.innerHTML = '<option value="">Seleccionar día</option>';
+        const weekdayNames = {
+            1: 'Domingo', 2: 'Lunes', 3: 'Martes', 4: 'Miércoles',
+            5: 'Jueves', 6: 'Viernes', 7: 'Sábado'
+        };
+
+        [...uniqueWeekdays].sort().forEach(weekday => {
+            const option = document.createElement('option');
+            option.value = weekday;
+            option.textContent = weekdayNames[weekday];
+            weekdaySelect.appendChild(option);
+        });
     }
+
+    // Update dates based on selected weekday
+    function updateDates(selectedWeekday) {
+        dateSelect.innerHTML = '<option value="">Seleccionar fecha</option>';
+        dateSelect.disabled = !selectedWeekday;
+        timeSelect.innerHTML = '<option value="">Primero selecciona una fecha</option>';
+        timeSelect.disabled = true;
+        bookAppointmentButton.disabled = true;
+
+        if (!selectedWeekday) return;
+
+        const filteredDates = new Set();
+        availabilities.forEach(availability => {
+            const date = new Date(availability.date + 'T00:00:00');
+            const weekDay = ((date.getDay() + 7) % 7) + 1;
+            if (weekDay.toString() === selectedWeekday) {
+                filteredDates.add(availability.date);
+            }
+        });
+
+        [...filteredDates].sort().forEach(date => {
+            const option = document.createElement('option');
+            option.value = date;
+            const dateObj = new Date(date + 'T00:00:00');
+            option.textContent = formatDateLong(dateObj);
+            dateSelect.appendChild(option);
+        });
+    }
+
+    // Update times based on selected date
+    function updateTimes(selectedDate) {
+        timeSelect.innerHTML = '<option value="">Seleccionar hora</option>';
+        timeSelect.disabled = !selectedDate;
+        bookAppointmentButton.disabled = true;
+
+        if (!selectedDate) return;
+
+        const filteredTimes = availabilities
+            .filter(a => a.date === selectedDate)
+            .sort((a, b) => a.start_time.localeCompare(b.start_time));
+
+        filteredTimes.forEach(availability => {
+            const option = document.createElement('option');
+            option.value = availability.id;
+            option.textContent = `${availability.start_time} - ${availability.end_time}`;
+            timeSelect.appendChild(option);
+        });
+    }
+
+    // Event Listeners
+    weekdaySelect.addEventListener('change', function() {
+        updateDates(this.value);
+    });
+
+    dateSelect.addEventListener('change', function() {
+        updateTimes(this.value);
+    });
+
+    timeSelect.addEventListener('change', function() {
+        bookAppointmentButton.disabled = !this.value;
+    });
 
     // Book appointment
     bookAppointmentButton.addEventListener('click', function() {
-        const availabilityId = availabilitySelect.value;
+        const availabilityId = timeSelect.value;
         if (!availabilityId) {
-            alert('Por favor, seleccione un horario disponible.');
+            alert('Por favor, complete la selección de horario.');
             return;
         }
 
@@ -83,13 +159,24 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             if (data.status === 'success') {
                 const [day, month, year] = data.date.split('/');
-                const appointmentDate = new Date(year, month - 1, day); // month is 0-indexed
+                const appointmentDate = new Date(year, month - 1, day);
                 const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
-                const formattedDate = appointmentDate.toLocaleDateString('es-ES', { year: 'numeric', month: 'long', day: 'numeric' });
+                const formattedDate = appointmentDate.toLocaleDateString('es-ES', { 
+                    year: 'numeric', 
+                    month: 'long', 
+                    day: 'numeric' 
+                });
                 
                 confirmedDate.textContent = `${dayName}, ${formattedDate}`;
                 confirmedTime.textContent = data.time;
                 appointmentConfirmation.style.display = 'block';
+                
+                // Reset selections
+                weekdaySelect.value = '';
+                dateSelect.disabled = true;
+                timeSelect.disabled = true;
+                bookAppointmentButton.disabled = true;
+                
                 fetchAvailabilities();
                 updateUserAppointments();
             } else {
@@ -108,11 +195,8 @@ document.addEventListener('DOMContentLoaded', function() {
     // Update user appointments list
     function updateUserAppointments() {
         const userAppointmentsList = document.getElementById('user-appointments-list');
-        
-        // Show loading state
         showLoading();
     
-        // Fetch appointments
         fetch('/get-user-appointments/')
             .then(response => {
                 if (!response.ok) {
@@ -131,7 +215,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 data.forEach(appointment => {
                     const li = document.createElement('li');
                     
-                    // Format date
                     const [day, month, year] = appointment.date.split('/');
                     const appointmentDate = new Date(year, month - 1, day);
                     const dayName = new Intl.DateTimeFormat('es-ES', { weekday: 'long' }).format(appointmentDate);
@@ -141,41 +224,31 @@ document.addEventListener('DOMContentLoaded', function() {
                         day: 'numeric' 
                     });
     
-                    // Create date and time text
                     const dateTimeText = document.createTextNode(
                         `${dayName}, ${formattedDate} ${appointment.time}`
                     );
                     li.appendChild(dateTimeText);
-                    
-                    // Add separator
                     li.appendChild(document.createTextNode(' - '));
     
-                    // Add appropriate link
                     if (appointment.google_meet_link) {
-                        // Video call link
                         const meetLink = document.createElement('a');
                         meetLink.href = appointment.google_meet_link;
                         meetLink.textContent = 'Unirse a la videollamada';
                         meetLink.target = '_blank';
                         meetLink.className = 'meet-link';
-                        meetLink.setAttribute('aria-label', 'Unirse a la videollamada de Google Meet');
                         li.appendChild(meetLink);
                         
-                        // Add recommendations link after meet link
                         li.appendChild(document.createTextNode(' | '));
                         const recomendacionesLink = document.createElement('a');
                         recomendacionesLink.href = '/recomendaciones/';
                         recomendacionesLink.textContent = 'Ver recomendaciones';
                         recomendacionesLink.className = 'recomendaciones-link';
-                        recomendacionesLink.setAttribute('aria-label', 'Ver recomendaciones para la sesión');
                         li.appendChild(recomendacionesLink);
                     } else {
-                        // Only recommendations link when no meet link is available
                         const recomendacionesLink = document.createElement('a');
                         recomendacionesLink.href = '/recomendaciones/';
-                        recomendacionesLink.textContent = 'Ver recomendaciones para la sesión';
+                        recomendacionesLink.textContent = 'Ver recomendaciones';
                         recomendacionesLink.className = 'recomendaciones-link';
-                        recomendacionesLink.setAttribute('aria-label', 'Ver recomendaciones para la sesión');
                         li.appendChild(recomendacionesLink);
                     }
     
@@ -197,23 +270,6 @@ document.addEventListener('DOMContentLoaded', function() {
                 hideLoading();
             });
     }
-    
-    // Helper functions for loading state
-    function showLoading() {
-        const userAppointmentsList = document.getElementById('user-appointments-list');
-        userAppointmentsList.classList.add('loading');
-        userAppointmentsList.innerHTML = `
-            <li class="loading-message">
-                <div class="spinner"></div>
-                <span>Cargando sus citas...</span>
-            </li>
-        `;
-    }
-    
-    function hideLoading() {
-        const userAppointmentsList = document.getElementById('user-appointments-list');
-        userAppointmentsList.classList.remove('loading');
-    }
 
     // Helper function to get CSRF token
     function getCookie(name) {
@@ -232,12 +288,16 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Helper function to format date
-    function formatDate(dateString) {
-        const options = { year: 'numeric', month: 'long', day: 'numeric' };
-        return new Date(dateString).toLocaleDateString('es-ES', options);
+    function formatDateLong(date) {
+        return date.toLocaleDateString('es-ES', {
+            weekday: 'long',
+            year: 'numeric',
+            month: 'long',
+            day: 'numeric'
+        });
     }
 
-    // Initial fetch of availabilities and user appointments
+    // Initial load
     fetchAvailabilities();
     updateUserAppointments();
 });

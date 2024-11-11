@@ -65,9 +65,51 @@
             </div>
         </div>
 
+        {# Update the availability-list section in panel.html #}
+
         <div class="availability-list">
-            <h3>Horarios Disponibles</h3>
-            <ul id="availabilityList"></ul>
+            <div class="section-header">
+                <h2>Horarios Disponibles</h2>
+                <button id="toggleAvailabilities" class="btn-toggle">
+                    <span class="toggle-text">Ocultar</span>
+                    <span class="toggle-icon">▼</span>
+                </button>
+            </div>
+            
+            <div id="availabilityListContainer" class="availability-container">
+                <div class="availability-filters">
+                    <select id="monthFilter" class="filter-select">
+                        <option value="">Todos los meses</option>
+                        <option value="1">Enero</option>
+                        <option value="2">Febrero</option>
+                        <option value="3">Marzo</option>
+                        <option value="4">Abril</option>
+                        <option value="5">Mayo</option>
+                        <option value="6">Junio</option>
+                        <option value="7">Julio</option>
+                        <option value="8">Agosto</option>
+                        <option value="9">Septiembre</option>
+                        <option value="10">Octubre</option>
+                        <option value="11">Noviembre</option>
+                        <option value="12">Diciembre</option>
+                    </select>
+                    
+                    <select id="weekdayFilter" class="filter-select">
+                        <option value="">Todos los días</option>
+                        <option value="2">Lunes</option>
+                        <option value="3">Martes</option>
+                        <option value="4">Miércoles</option>
+                        <option value="5">Jueves</option>
+                        <option value="6">Viernes</option>
+                        <option value="7">Sábado</option>
+                        <option value="1">Domingo</option>
+                    </select>
+                </div>
+
+                <div id="availabilityList" class="availability-grid">
+                    <!-- Availabilities will be populated here -->
+                </div>
+            </div>
         </div>
     </div>
 
@@ -104,6 +146,58 @@
             <button id="generateReport" class="btn-primary">Generar Reporte de Ingresos</button>
         </div>
     </div>
+
+    <div class="panel-section">
+        <h2>Usuarios Registrados</h2>
+        <div class="stats-summary">
+            <div class="stat-card">
+                <span class="stat-title">Total Usuarios</span>
+                <span class="stat-value">{{ total_users }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Total Citas</span>
+                <span class="stat-value">{{ total_appointments }}</span>
+            </div>
+            <div class="stat-card">
+                <span class="stat-title">Citas Pagadas</span>
+                <span class="stat-value">{{ paid_appointments }}</span>
+            </div>
+        </div>
+        
+        <div class="registered-users-list">
+            <table class="users-table">
+                <thead>
+                    <tr>
+                        <th>Nombre</th>
+                        <th>Usuario</th>
+                        <th>Email</th>
+                        <th>Teléfono</th>
+                        <th>Ciudad</th>
+                        <th>Edad</th>
+                        <th>Fecha de registro</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in registered_users %}
+                    <tr>
+                        <td>{{ user.name|default:"No proporcionado" }}</td>
+                        <td>{{ user.username }}</td>
+                        <td>{{ user.email }}</td>
+                        <td>{{ user.phone|default:"No proporcionado" }}</td>
+                        <td>{{ user.location|default:"No proporcionada" }}</td>
+                        <td>{{ user.age|default:"No proporcionada" }}</td>
+                        <td>{{ user.date_joined|date:"d/m/Y H:i" }}</td>
+                    </tr>
+                    {% empty %}
+                    <tr>
+                        <td colspan="7" class="text-center">No hay usuarios registrados aún.</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
 </div>
 
 {% endblock %}
